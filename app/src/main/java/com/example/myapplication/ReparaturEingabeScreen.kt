@@ -48,6 +48,7 @@ fun ReparaturEingabeScreen(
     navController: NavController,
     kategorieChanges: KategorieChanges,
 ) {
+    var replace: Boolean = false
 
     Column(
         modifier = Modifier
@@ -56,6 +57,7 @@ fun ReparaturEingabeScreen(
             .padding(horizontal = 16.dp, 8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Spacer(modifier = Modifier.size(30.dp))
+
 
         val options = kategorieViewModel.getallKategorien().observeAsState(listOf())
 
@@ -70,28 +72,43 @@ fun ReparaturEingabeScreen(
             }
         }
 
-        //Algorithmus zum erschaffen der kleinstmöglichen ID
-        val reparaturID: Int = when (val z = idListe.minByOrNull { it }) {
-            //Wenn Liste leer ID = 1
-            null -> 1
-            //Wenn kleinste ID 1, dann neue ID = größte ID + 1
-            1 -> (idListe.maxBy { it } + 1)
-            //Neue ID = kleinste ID-1
-            else -> (z - 1)
+        //Sollte nie dazu kommen
+        var reparaturID: Int = 0
+        if (kategorieChanges.repid != -1) {
+            println("Repid is: " + kategorieChanges.repid)
+            reparaturID = kategorieChanges.repid
+            replace = true
+            //kategorieChanges.resetrepid()
+        }
+        else{
+            println("HALO ICHBINHIER")
+            reparaturID = when (val z = idListe.minByOrNull { it }) {
+                //Wenn Liste leer ID = 1
+                null -> 1
+                //Wenn kleinste ID 1, dann neue ID = größte ID + 1
+                1 -> (idListe.maxBy { it } + 1)
+                //Neue ID = kleinste ID-1
+                else -> (z - 1)
+            }
         }
 
         var expanded by remember { mutableStateOf(false) }
 
+        //var selectedOptionText by remember { mutableStateOf("noch leer") }
         var selectedOptionText by remember { mutableStateOf("noch leer") }
-
         //Wenn eine Kategorie bereits in Changes, dann das als Selectedoptiontext
-        if(kategorieChanges.kategoriename != "leer"){
+        if (kategorieChanges.kategoriename != "leer") {
             selectedOptionText = kategorieChanges.kategoriename
+            //Sonst +berschreibt der selectedOptionText ganze Zeit
+            kategorieChanges.resetkatname()
         }
 
         val context = LocalContext.current
 
         var buttonenabler by remember { mutableStateOf(true) }
+
+        //Kann eigentlich auch nach oben
+        val openAlertDialog = remember { mutableStateOf(false) }
 
         ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = {
             expanded = !expanded
@@ -110,22 +127,25 @@ fun ReparaturEingabeScreen(
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                 })
 
+            var alertoption = Kategorie("leer", (mutableListOf(Reparatur())))
+
             ExposedDropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false }) {
                 options.value.forEach { selectedOption ->
-
+                    //println(selectedOption.kategorie_name)
                     //Für Kategorie löschen
-                    val openAlertDialog = remember { mutableStateOf(false) }
-
                     Row(
                         modifier = Modifier
                             .combinedClickable(onClick = {
+
+                                //Anzeigekategorie ist gleich gewählte Kategorie
                                 selectedOptionText = selectedOption.kategorie_name
-                                //println(selectedOption.kategorie_name)
+
                                 expanded = false
                             },
-                                onLongClick = {//gilt iwie für alle items
+                                onLongClick = {
+                                    alertoption = selectedOption
                                     openAlertDialog.value = true
                                 })
                             .fillMaxWidth()
@@ -133,23 +153,25 @@ fun ReparaturEingabeScreen(
                     )
                     {
                         Text(text = selectedOption.kategorie_name)
-                        when {
-                            openAlertDialog.value -> {
-                                //println("Ich bin in Kategorie ${selectedOption.kategorie_name} ")
-                                AlertDialog(
-                                    onDismissRequest = { openAlertDialog.value = false },
-                                    onConfirmation = {
-                                        kategorieViewModel.delete(selectedOption)
-                                        openAlertDialog.value = false
-                                        kategorieChanges.resetchanges()
-                                        selectedOptionText = "gelöscht"
-                                        //println("Confirmation registered")
-                                    },
-                                    dialogText = "Kategorie ${selectedOption.kategorie_name} wird gelöscht",
-                                    dialogTitle = "Kategorie löschen ?"
-                                )
-                            }
-                        }
+
+                    }
+                }
+                //An dieser Stelle, weil sonst für jedes Listen-Element AlertDialog geöffnet wird
+                when {
+                    openAlertDialog.value -> {
+                        //println("Ich bin in Kategorie ${selectedOption.kategorie_name} ")
+                        AlertDialog(
+                            onDismissRequest = { openAlertDialog.value = false },
+                            onConfirmation = {
+                                kategorieViewModel.delete(alertoption)
+                                openAlertDialog.value = false
+                                kategorieChanges.resetchanges()
+                                selectedOptionText = "gelöscht"
+                                //println("Confirmation registered")
+                            },
+                            dialogText = "Kategorie ${alertoption.kategorie_name} wird gelöscht",
+                            dialogTitle = "Kategorie löschen ?"
+                        )
                     }
                 }
 
@@ -171,28 +193,39 @@ fun ReparaturEingabeScreen(
 
         Spacer(modifier = Modifier.size(100.dp))
 
-        val repname = remember { mutableStateOf("") }
+        var repname by remember { mutableStateOf("") }
+
+        if (kategorieChanges.reparaturname != "leer") {
+            repname = kategorieChanges.reparaturname
+            kategorieChanges.resetrepname()
+        }
+
         TextField(
             label = { Text("Reparaturenname") },
             singleLine = true,
-            value = repname.value,
-            onValueChange = { repname.value = it }
+            value = repname,
+            onValueChange = { repname = it }
         )
 
         Spacer(modifier = Modifier.size(100.dp))
 
 
-        val reppreis = remember {
+        var reppreis by remember {
             mutableStateOf("")
         }
+        if (kategorieChanges.reparaturpreis != 0.0f) {
+            reppreis = kategorieChanges.reparaturpreis.toString()
+            kategorieChanges.resetreppreis()
+        }
+
         TextField(
             label = { Text(text = "Preis") },
             singleLine = true,
-            value = reppreis.value,
+            value = reppreis,
             onValueChange = {
-                reppreis.value = it
+                reppreis = it
                 buttonenabler = try {
-                    reppreis.value.toFloat()
+                    reppreis.toFloat()
                     true
                 } catch (e: NumberFormatException) {
                     false
@@ -202,28 +235,45 @@ fun ReparaturEingabeScreen(
         )
 
 
-
-
         Spacer(modifier = Modifier.size(130.dp))
 
         Button(enabled = buttonenabler, onClick = {
 
-            if ((selectedOptionText == "Neue Katgeorie") || (selectedOptionText == "gelöscht") || (selectedOptionText == "noch leer")) {
+            if ((selectedOptionText == "Neue Katgeorie") || (selectedOptionText == "gelöscht") || (selectedOptionText == "leer")) {
                 Toast.makeText(context, "ungültige Kategorie", Toast.LENGTH_SHORT).show()
+            } else if ((repname == "") || (reppreis == "")) {
+                Toast.makeText(
+                    context,
+                    "kein Reparaturname oder Preis angegeben",
+                    Toast.LENGTH_SHORT
+                ).show()
             } else {
 
                 //Findmethode unnötig wenn Liste nicht random fehler haben sollte. Direkter Zugriff auf Element möglich
                 options.value.find { it.kategorie_name == selectedOptionText }?.let {
+                    //Wenn Element ersetzt werden soll
+                    if (replace) {
+                        println("yesman")
+                        it.reparaturliste[it.reparaturliste.indexOf(it.reparaturliste.find { it.id == reparaturID })] =
+                            Reparatur(
+                                reparaturID,
+                                repname,
+                                selectedOptionText,
+                                reppreis.toFloat()
+                            )
 
-                    //add Methode macht keine Probleme. Ausser wenn es in Zukunft Probleme gibt, muss Liste geklont mit .toMutablelist() werden
-                    it.reparaturliste.add(
-                        Reparatur(
-                            reparaturID,
-                            repname.value,
-                            selectedOptionText,
-                            reppreis.value.toFloat()
+                    } else {
+                        //add Methode macht keine Probleme. Ausser wenn es in Zukunft Probleme gibt, muss Liste geklont mit .toMutablelist() werden
+                        println("Reparaturid is: $reparaturID")
+                        it.reparaturliste.add(
+                            Reparatur(
+                                reparaturID,
+                                repname,
+                                selectedOptionText,
+                                reppreis.toFloat()
+                            )
                         )
-                    )
+                    }
                     kategorieViewModel.update(
                         Kategorie(
                             selectedOptionText,
@@ -241,9 +291,8 @@ fun ReparaturEingabeScreen(
         }
 
     }
-
-
 }
+
 
 @Composable
 fun AlertDialog(
@@ -254,7 +303,7 @@ fun AlertDialog(
 ) {
     AlertDialog(
         title = {
-            Text(text = dialogTitle, color = Color.Black, fontWeight = Bold, fontSize = 16.sp)
+            Text(text = dialogTitle, color = Color.Black, fontWeight = Bold, fontSize = 26.sp)
         },
         text = { Text(text = dialogText, color = Color.Black) },
         onDismissRequest = { onDismissRequest() },

@@ -8,23 +8,29 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.runtime.remember
+import androidx.navigation.NavController
 
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ReparaturScreen(
-    kategorieViewModel: KategorieViewModel
+    kategorieViewModel: KategorieViewModel,
+    navController: NavController,
+    kategorieChanges: KategorieChanges,
 ) {
+    //sollte nur einmal ausgeführt werden
+    //kategorieChanges.resetchanges()
 
     val kategorielist = kategorieViewModel.getallKategorien().observeAsState(listOf())
 
@@ -32,10 +38,15 @@ fun ReparaturScreen(
     LazyColumn(
         modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(16.dp)
     ) {
-        kategorielist.value.forEach() {
+        kategorielist.value.forEach {
 
             stickyHeader {
-                Text(text = it.kategorie_name, fontSize = 20.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    text = it.kategorie_name,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.background
+                )
             }
 
             items(it.reparaturliste) { item ->
@@ -46,7 +57,11 @@ fun ReparaturScreen(
                     modifier = Modifier
                         .combinedClickable(
                             onClick = {
-                                //Hier kann man später das so implementieren, dass voll ausgefüllte Seite erscheint
+                                kategorieChanges.kategoriename = item.reparatur_kategorie
+                                kategorieChanges.reparaturname = item.reparatur_name
+                                kategorieChanges.reparaturpreis = item.reparatur_preis
+                                kategorieChanges.repid = item.id
+                                navController.navigate("reparatureingabe")
                             },
                             onLongClick = {
                                 openAlertDialog.value = true
@@ -55,11 +70,18 @@ fun ReparaturScreen(
                         .fillMaxWidth()
                         .padding(16.dp)
                 ) {
-                    Text(text = item.reparatur_name,modifier = Modifier.weight(1f))
-                    Text(text = item.reparatur_preis.toString())
+                    Text(
+                        text = item.reparatur_name,
+                        modifier = Modifier.weight(1f),
+                        color = MaterialTheme.colorScheme.background
+                    )
+                    Text(
+                        text = "%.2f".format(item.reparatur_preis) + "€",
+                        color = MaterialTheme.colorScheme.background
+                    )
                     when {
                         openAlertDialog.value -> {
-                            println("In Item ${item.reparatur_name}")
+                            //println("In Item ${item.reparatur_name}")
                             AlertDialog(
                                 onDismissRequest = { openAlertDialog.value = false },
                                 onConfirmation = {
@@ -80,7 +102,7 @@ fun ReparaturScreen(
                                     println("Confirmation registered")
                                 },
                                 dialogText = "Reparatur ${item.reparatur_name} wird gelöscht",
-                                dialogTitle ="Reparatur löschen ?"
+                                dialogTitle = "Reparatur löschen ?"
                             )
                         }
                     }
@@ -95,6 +117,6 @@ fun ReparaturScreen(
 
     }
 
-
 }
+
 

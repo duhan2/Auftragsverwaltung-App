@@ -6,9 +6,9 @@ import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.IconButton
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
@@ -18,19 +18,22 @@ import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.myapplication.ui.theme.MyApplicationTheme
+import com.example.compose.AppTheme
 
 class MainActivity : ComponentActivity() {
 
@@ -65,10 +68,10 @@ class MainActivity : ComponentActivity() {
 
 
         setContent {
-            MyApplicationTheme {
+            AppTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
-                    modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background
+                    modifier = Modifier.fillMaxSize(),// color = Color.White
                 ) {
 
                     val navController = rememberNavController()
@@ -81,16 +84,51 @@ class MainActivity : ComponentActivity() {
                         topBar = {
 
                             TopAppBar(
+                                backgroundColor = MaterialTheme.colorScheme.onSecondary,
                                 title = {
                                     //Ändert angezeigten Titel in Toppbar
                                     when (currentDestination?.route.toString()) {
-                                        "home" -> Text(text = "Aufträge")
-                                        "edit" -> Text(text = "Auftrag Eingabe")
-                                        "reparaturen" -> Text(text = "Reparaturen")
-                                        "reparatureingabe" -> Text(text = "Reparatureingabe")
-                                        "kategorieeingabe" -> Text(text = "Kategorieeingabe")
-                                        "auswahl" -> Text(text = "Reparatur Warenkorb")
-                                        "auftrag" -> Text(text = "Auftrag ansehen")
+                                        "home" -> Text(
+                                            text = "Aufträge",
+                                            color = Color.White,
+                                            fontWeight = FontWeight.Bold
+                                        )
+
+                                        "edit" -> Text(
+                                            text = "Auftrag Eingabe",
+                                            color = Color.White,
+                                            fontWeight = FontWeight.Bold
+                                        )
+
+                                        "reparaturen" -> Text(
+                                            text = "Reparaturen",
+                                            color = Color.White,
+                                            fontWeight = FontWeight.Bold
+                                        )
+
+                                        "reparatureingabe" -> Text(
+                                            text = "Reparatureingabe",
+                                            color = Color.White,
+                                            fontWeight = FontWeight.Bold
+                                        )
+
+                                        "kategorieeingabe" -> Text(
+                                            text = "Kategorieeingabe",
+                                            color = Color.White,
+                                            fontWeight = FontWeight.Bold
+                                        )
+
+                                        "auswahl" -> Text(
+                                            text = "Reparatur Warenkorb",
+                                            color = Color.White,
+                                            fontWeight = FontWeight.Bold
+                                        )
+
+                                        "auftrag" -> Text(
+                                            text = "Auftrag ansehen",
+                                            color = Color.White,
+                                            fontWeight = FontWeight.Bold
+                                        )
                                     }
 
                                 },
@@ -112,13 +150,15 @@ class MainActivity : ComponentActivity() {
                                         }
                                     }
                                 }
+
                             )
                         },
 
 
                         bottomBar = {
-                            BottomNavigation {
-
+                            BottomNavigation(
+                                backgroundColor = MaterialTheme.colorScheme.onSecondary
+                            ) {
                                 BottomNavigationItem(
                                     label = { Text("Aufträge") },
                                     selected = currentDestination?.hierarchy?.any { it.route == "home" } == true,
@@ -176,7 +216,7 @@ class MainActivity : ComponentActivity() {
                         floatingActionButton = {
 
                             when (currentDestination?.route.toString()) {
-                                "home" -> FloatingActionButton(onClick = {
+                                "home" -> LargeFloatingActionButton(shape = CircleShape, onClick = {
 
                                     //Edit Screen nicht prepopulaten
                                     reparaturChanges.resetchanges()
@@ -186,17 +226,19 @@ class MainActivity : ComponentActivity() {
                                     Icon(Icons.Default.Add, contentDescription = "Add")
                                 }
 
-                                "reparaturen" -> FloatingActionButton(onClick = {
+                                "reparaturen" -> LargeFloatingActionButton(
+                                    shape = CircleShape,
+                                    onClick = {
 
-                                    kategorieChanges.resetchanges()
+                                        kategorieChanges.resetchanges()
 
-                                    navController.navigate("reparatureingabe")
-                                }) {
+                                        navController.navigate("reparatureingabe")
+                                    }) {
                                     Icon(Icons.Default.Add, contentDescription = "Add")
                                 }
                             }
 
-                        }
+                        }, containerColor = MaterialTheme.colorScheme.onPrimaryContainer
                     ) { innerPadding ->
                         println(currentDestination?.route.toString())
 
@@ -218,7 +260,9 @@ class MainActivity : ComponentActivity() {
 
                             composable("reparaturen") {
                                 ReparaturScreen(
-                                    kategorieViewModel = kategorieViewModel
+                                    kategorieViewModel = kategorieViewModel,
+                                    navController = navController,
+                                    kategorieChanges = kategorieChanges
                                 )
                             }
 
@@ -257,7 +301,6 @@ class MainActivity : ComponentActivity() {
 
                             composable("auftrag") {
                                 AuftragScreen(
-                                    navController = navController,
                                     reparaturChanges = reparaturChanges,
                                     kundeViewModel = kundeviewModel
                                 )
