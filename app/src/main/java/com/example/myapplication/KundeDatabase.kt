@@ -1,12 +1,16 @@
 package com.example.myapplication
 
 import android.content.Context
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
-@Database(entities = [Kunde::class], version = 1)
+@Database(
+    entities = [Kunde::class], version = 2,
+    //autoMigrations = [AutoMigration(from = 1, to = 2)]
+)
 @TypeConverters(KundeConverter::class, DatumConverter::class)
 abstract class KundeDatabase : RoomDatabase() {
 
@@ -27,7 +31,7 @@ abstract class KundeDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     KundeDatabase::class.java,
-                    "kunden_database"
+                    "kunde_database"
                 ).build()
                 INSTANCE = instance
                 // return instance

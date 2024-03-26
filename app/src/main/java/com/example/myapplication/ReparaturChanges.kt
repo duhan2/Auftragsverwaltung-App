@@ -29,6 +29,7 @@ class ReparaturChanges {
         this.gesamtpreis = kunde.gesPreis
         this.extrasachen = kunde.extras
         this.aufpreis = kunde.aufpreis
+
         //!Kann sein dass die Elemente kopiert werden müssen und nicht refrerenziert werden dürfen!
         this.gesamtreps = kunde.reparaturliste.toMutableList()
     }

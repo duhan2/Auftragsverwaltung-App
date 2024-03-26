@@ -148,7 +148,7 @@ fun Editscreen(
         Spacer(modifier = Modifier.size(20.dp))
 
         LazyColumn(
-            modifier = Modifier.height(600.dp),
+            modifier = Modifier.height(500.dp),
             verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
             item {
@@ -224,7 +224,7 @@ fun Editscreen(
             extrasnum = stagedReparaturChanges.aufpreis.toString()
         }
 
-        Row {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(
                 value = extrastext,
                 onValueChange = {
@@ -232,10 +232,11 @@ fun Editscreen(
                     stagedReparaturChanges.extrasachen = it
                 },
                 label = { Text("Extras") },
-                textStyle = TextStyle(color = MaterialTheme.colorScheme.background)
+                textStyle = TextStyle(color = MaterialTheme.colorScheme.background),
+                modifier = Modifier.weight(2f)
             )
 
-            TextField(
+            OutlinedTextField(
                 value = extrasnum,
                 onValueChange = {
                     extrasnum = it
@@ -243,7 +244,8 @@ fun Editscreen(
                 },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                label = { Text(text = "Aufpreis") }
+                label = { Text(text = "Aufpreis") },
+                modifier = Modifier.weight(1f)
             )
 
         }
