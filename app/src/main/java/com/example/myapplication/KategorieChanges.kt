@@ -21,7 +21,5 @@ class KategorieChanges {
     fun resetreppreis(){
         this.reparaturpreis = 0.0f
     }
-    fun resetrepid(){
-        this.repid = -1
-    }
+
 }

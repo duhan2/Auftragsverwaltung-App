@@ -4,7 +4,6 @@ import android.telephony.SmsManager
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
-import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,10 +20,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -41,7 +37,7 @@ fun AuftragScreen(reparaturChanges: ReparaturChanges, kundeViewModel: KundeViewM
     //und hier wieder abgefragt
 
     val phoneNumber: String = reparaturChanges.numberinput
-    var message: String
+    var message = ""
     val context = LocalContext.current
 
     //Eventuell muss das raus wenn Probleme mit aktualisieren bei scroll
@@ -194,6 +190,30 @@ fun AuftragScreen(reparaturChanges: ReparaturChanges, kundeViewModel: KundeViewM
         }
 
         item {
+            Row {
+                Text(
+                    text = "Extras: ",
+                    fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.background
+                )
+                Text(
+                    text = reparaturChanges.extrasachen,
+                    color = MaterialTheme.colorScheme.background,
+                    modifier = Modifier.weight(2f)
+                )
+                Text(
+                    text = "Aufpreis: ",
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.background,
+                    modifier = Modifier.weight(1f)
+                )
+                Text(
+                    text = "%.2f".format(reparaturChanges.aufpreis) + "€",
+                    color = MaterialTheme.colorScheme.background,
+                )
+            }
+        }
+
+        item {
             Text(
                 text = "Summe = ${"%.2f".format(reparaturChanges.gesamtpreis)}€",
                 modifier = Modifier.fillMaxWidth(),
@@ -202,11 +222,6 @@ fun AuftragScreen(reparaturChanges: ReparaturChanges, kundeViewModel: KundeViewM
             )
         }
 
-        message =
-            "Hallo Herr/Frau " + reparaturChanges.nameinput + ",\nIhr Fahrrad ist abholbereit. Die Reperaturkosten betragen " + "%.2f".format(
-                reparaturChanges.gesamtpreis
-            ) + " €.\nMit freundlichen Grüßen\n" +
-                    "Fahrradwelt Fischeln"
 
         // on below line we are adding a spacer.
         item {
@@ -254,7 +269,7 @@ fun AuftragScreen(reparaturChanges: ReparaturChanges, kundeViewModel: KundeViewM
                     )
                     when {
                         openAlertDialog1.value -> {
-                            //println("Ich bin in Kategorie ${selectedOption.kategorie_name} ")
+
                             AlertDialog(
                                 onDismissRequest = { openAlertDialog1.value = false },
                                 onConfirmation = {// on below line running a try catch block for sending sms.
@@ -270,17 +285,13 @@ fun AuftragScreen(reparaturChanges: ReparaturChanges, kundeViewModel: KundeViewM
                                             null,
                                             null
                                         )
-                                        // on below line displaying
-                                        // toast message as sms send.
                                         Toast.makeText(
                                             context,
                                             "Message Sent",
                                             Toast.LENGTH_LONG
                                         ).show()
                                         openAlertDialog1.value = false
-                                        //status = "eingegangen"
-                                        //kundeViewModel.update(reparaturChanges.createKundenobj())
-                                        //navController.navigate("home")
+
                                     } catch (e: Exception) {
                                         // on below line handling error and
                                         // displaying toast message.
@@ -305,6 +316,9 @@ fun AuftragScreen(reparaturChanges: ReparaturChanges, kundeViewModel: KundeViewM
                     //Hier kann man auch abfragen ob keine Nummer vorhanden ist, aber bis jetzt ist eine Nummer Pflicht
                     //Wenn Nummer mit Festnetznummer anfängt
                     if (reparaturChanges.numberinput.startsWith("02151")) {
+                        reparaturChanges.auftragsstatus = "abgeschlossen"
+                        status = "abgeschlossen"
+                        kundeViewModel.update(reparaturChanges.createKundenobj())
                         Toast.makeText(
                             context,
                             "Kann keine SMS an Festnetznummer versenden",

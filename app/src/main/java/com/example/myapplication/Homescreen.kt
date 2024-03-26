@@ -48,7 +48,7 @@ fun Homescreen(
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         items(list) { item: Kunde ->
-            val color = when(item.status){
+            val color = when (item.status) {
                 "abgeschlossen" -> MaterialTheme.colorScheme.outline
                 "eingegangen" -> MaterialTheme.colorScheme.onTertiaryContainer
                 //Sollte nie vorkommen
@@ -64,7 +64,12 @@ fun Homescreen(
                     .padding(horizontal = 5.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(text = item.Name, fontWeight = FontWeight.Bold, modifier = Modifier.weight(2f),color = MaterialTheme.colorScheme.background)
+                Text(
+                    text = "" + item.id + " | " + item.name,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(2f),
+                    color = MaterialTheme.colorScheme.background
+                )
                 Kunde_EditButton(
                     item,
                     navController,
@@ -88,16 +93,13 @@ fun RowScope.Kunde_LoeschButton(kunde: Kunde, kundeViewModel: KundeViewModel) {
         //ganz wichtig sonst schreibt der nicht nebeneinenader
         modifier = Modifier.weight(1f), onClick = {
             openAlertDialog.value = true
-            //kundeViewModel.delete(kunde)
         }) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
-                //modifier = Modifier.size(size = 36.dp),
                 imageVector = Icons.Outlined.Delete, contentDescription = "", tint = Color.Red
             )
-            //Spacer(modifier = Modifier.width(width = 8.dp))
             Text(text = "Löschen", color = Color.Black)
         }
         when {
@@ -108,7 +110,6 @@ fun RowScope.Kunde_LoeschButton(kunde: Kunde, kundeViewModel: KundeViewModel) {
                     onConfirmation = {
                         kundeViewModel.delete(kunde)
                         openAlertDialog.value = false
-
                         //println("Confirmation registered")
                     },
                     dialogText = "Diese Aktion kann nicht rückgängig gemacht werden.",

@@ -35,7 +35,7 @@ fun KategorieEingabeScreen(
                 kategorieViewModel.insert(
                     Kategorie(
                         query.value,
-                        reparaturliste = mutableListOf<Reparatur>()
+                        reparaturliste = mutableListOf()
                     )
                 )
                 //Einsetzen der Kategorie in Changes

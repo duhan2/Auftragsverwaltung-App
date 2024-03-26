@@ -16,7 +16,7 @@ data class Kunde (
     var id: Int = -1,    //wenn bei -1 dann inkrementiert nicht:d
 
     @ColumnInfo(name = "Name")
-    var Name: String = "leer",
+    var name: String = "leer",
 
     @ColumnInfo(name = "Gesamtpreis")
     var gesPreis: Float = 0.00F,
@@ -32,8 +32,13 @@ data class Kunde (
 
     //EVENTUELL DAS  MUTABLE
     @ColumnInfo(name = "Reparaturenliste")
-    var reparaturliste: List<Reparatur>
+    var reparaturliste: List<Reparatur>,
 
+    @ColumnInfo(name = "Extras")
+    var extras: String = "",
+
+    @ColumnInfo(name = "Aufpreis")
+    var aufpreis: Float = 0.00F
 
 )
 

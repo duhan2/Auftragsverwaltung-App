@@ -48,7 +48,7 @@ fun ReparaturEingabeScreen(
     navController: NavController,
     kategorieChanges: KategorieChanges,
 ) {
-    var replace: Boolean = false
+    var replace = false
 
     Column(
         modifier = Modifier
@@ -72,16 +72,15 @@ fun ReparaturEingabeScreen(
             }
         }
 
-        //Sollte nie dazu kommen
-        var reparaturID: Int = 0
+        val reparaturID: Int
         if (kategorieChanges.repid != -1) {
-            println("Repid is: " + kategorieChanges.repid)
+            //println("Repid is: " + kategorieChanges.repid)
             reparaturID = kategorieChanges.repid
             replace = true
             //kategorieChanges.resetrepid()
         }
         else{
-            println("HALO ICHBINHIER")
+            //println("HALO ICHBINHIER")
             reparaturID = when (val z = idListe.minByOrNull { it }) {
                 //Wenn Liste leer ID = 1
                 null -> 1
@@ -249,8 +248,7 @@ fun ReparaturEingabeScreen(
                 ).show()
             } else {
 
-                //Findmethode unnötig wenn Liste nicht random fehler haben sollte. Direkter Zugriff auf Element möglich
-                options.value.find { it.kategorie_name == selectedOptionText }?.let {
+                options.value.find { it.kategorie_name == selectedOptionText }?.let { it ->
                     //Wenn Element ersetzt werden soll
                     if (replace) {
                         println("yesman")

@@ -72,11 +72,12 @@ fun ReparaturScreen(
                 ) {
                     Text(
                         text = item.reparatur_name,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.weight(3f),
                         color = MaterialTheme.colorScheme.background
                     )
                     Text(
                         text = "%.2f".format(item.reparatur_preis) + "€",
+                        modifier = Modifier.weight(1f),
                         color = MaterialTheme.colorScheme.background
                     )
                     when {

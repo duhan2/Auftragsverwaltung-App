@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.List
@@ -20,6 +22,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -31,6 +34,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -52,6 +56,7 @@ fun Editscreen(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, 8.dp)
+            .verticalScroll(rememberScrollState())
     ) {
 
         val context = LocalContext.current
@@ -162,6 +167,16 @@ fun Editscreen(
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.background
                     )
+                    Text(
+                        text = "Einzelpreis",
+                        modifier = Modifier.weight(2f),
+                        fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.background
+                    )
+                    Text(
+                        text = "Gesamtpreis",
+                        modifier = Modifier.weight(2f),
+                        fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.background
+                    )
 
                 }
             }
@@ -181,7 +196,17 @@ fun Editscreen(
                         textAlign = TextAlign.Center,
                         color = MaterialTheme.colorScheme.background
                     )
-
+                    //Einzelpreis
+                    Text(
+                        text = "${"%.2f".format(it.reparatur_preis)}€",
+                        modifier = Modifier.weight(2f),
+                        color = MaterialTheme.colorScheme.background
+                    )
+                    //Gesamtpreis
+                    Text(
+                        text = "${"%.2f".format(it.reparatur_preis * it.anzahl)}€",
+                        modifier = Modifier.weight(2f), color = MaterialTheme.colorScheme.background
+                    )
                 }
 
             }
@@ -190,13 +215,56 @@ fun Editscreen(
 
         Spacer(modifier = Modifier.size(20.dp))
 
+        var extrastext by remember { mutableStateOf("") }
+        if (stagedReparaturChanges.extrasachen != "") {
+            extrastext = stagedReparaturChanges.extrasachen
+        }
+        var extrasnum by remember { mutableStateOf("") }
+        if (stagedReparaturChanges.aufpreis != 0.00F) {
+            extrasnum = stagedReparaturChanges.aufpreis.toString()
+        }
+
+        Row {
+            OutlinedTextField(
+                value = extrastext,
+                onValueChange = {
+                    extrastext = it
+                    stagedReparaturChanges.extrasachen = it
+                },
+                label = { Text("Extras") },
+                textStyle = TextStyle(color = MaterialTheme.colorScheme.background)
+            )
+
+            TextField(
+                value = extrasnum,
+                onValueChange = {
+                    extrasnum = it
+                    stagedReparaturChanges.aufpreis = it.toFloat()
+                },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                label = { Text(text = "Aufpreis") }
+            )
+
+        }
+
+
+        Spacer(modifier = Modifier.size(20.dp))
+        //Gesamtpreis aufaddieren
         var gesamtpreis = 0.0F
         gesamtreps.forEach { rep -> gesamtpreis += (rep.reparatur_preis * rep.anzahl) }
+        //Stürzt sonst ab bei leerem String
+        gesamtpreis += try {
+            extrasnum.toFloat()
+        } catch (e: NumberFormatException) {
+            0.00F
+        }
 
         Button(modifier = Modifier.align(Alignment.CenterHorizontally), onClick = {
 
             if (nameinput != "") {
                 if (numberinput != "") {
+
                     if (gesamtreps.isNotEmpty()) {
                         //Wegen OnConflictStrategy.REPLACE sollte das hier bei gleicher ID den Kunden ersetzen
                         kundeViewModel.insert(
@@ -207,7 +275,13 @@ fun Editscreen(
                                 localDate,
                                 numberinput,
                                 "eingegangen",
-                                gesamtreps
+                                gesamtreps,
+                                extrastext,
+                                try {
+                                    extrasnum.toFloat()
+                                } catch (e: NumberFormatException) {
+                                    0.00F
+                                }
                             )
                         )
                         //Keine Changes staged
