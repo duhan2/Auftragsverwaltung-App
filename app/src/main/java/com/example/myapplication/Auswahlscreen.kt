@@ -51,7 +51,10 @@ fun AuswahlScreen(
         stagedReparaturChanges.gesamtreps.forEach {
             //Kopie der Liste übergeben damit stagedChanges nicht bearbeitet wird,
             // solange man nicht den bestätigen Knopf drückt
-            reparaturen.add(it.copy())
+            //FRAUDWATCH
+            if (it.reparatur_kategorie != "Extras") {
+                reparaturen.add(it.copy())
+            }
         }
     }
 

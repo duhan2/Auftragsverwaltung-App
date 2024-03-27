@@ -12,8 +12,8 @@ import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.IconButton
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -144,7 +144,7 @@ class MainActivity : ComponentActivity() {
                                                 }
                                             }) {
                                             Icon(
-                                                imageVector = Icons.Filled.ArrowBack,
+                                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                                                 contentDescription = "Backbutton in Editmenu"
                                             )
                                         }
@@ -240,7 +240,7 @@ class MainActivity : ComponentActivity() {
 
                         }, containerColor = MaterialTheme.colorScheme.onPrimaryContainer
                     ) { innerPadding ->
-                        println(currentDestination?.route.toString())
+                        //println(currentDestination?.route.toString())
 
                         NavHost(
                             navController = navController,

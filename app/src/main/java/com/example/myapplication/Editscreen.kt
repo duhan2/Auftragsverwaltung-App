@@ -16,10 +16,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Done
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -28,6 +28,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -44,7 +45,6 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @RequiresApi(34)
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Editscreen(
     kundeViewModel: KundeViewModel,
@@ -65,12 +65,31 @@ fun Editscreen(
         val kundenliste by kundeViewModel.getallKunden().observeAsState(listOf())
 
         //Algorithmus zum erschaffen der kleinstmöglichen ID
-        //Eventuell crash wegen ?
+        //Erschaffe array von 50
+        var size = 1
+        val temp = kundenliste.maxByOrNull { it.id }
+        if (temp != null) {
+            size = temp.id
+        }
+        val idListe = Array<Boolean>(size) { false }
+        //Jede vergebene ID = true
+        kundenliste.forEach { idListe[it.id-1] = true }
+        var kundenid = 0
+        //Wenn id nicht vergeben ist
+        loop@ for (i in 1..size) {
+            if (!idListe[i-1]){
+                //Dann kundenid = i und raus aus der loop
+                kundenid = i
+                break@loop
+            }
+        }
+        /*
         var kundenid: Int = when (val x = kundenliste.minByOrNull { it.id }?.id) {
             null -> 1
             1 -> (kundenliste.maxBy { it.id }.id + 1)
             else -> (x - 1)
-        }
+        }*/
+
         //Overwrite ID wenn prepopulate
         if (stagedReparaturChanges.kundenid != 0) {
             kundenid = stagedReparaturChanges.kundenid
@@ -127,7 +146,7 @@ fun Editscreen(
 
         //Gesamtreps eine Kopie von StagedChanges
         //Liste von an Stagedchanges übergebenes Objekt einlesen
-        val gesamtreps = mutableListOf<Reparatur>()
+        val gesamtreps = mutableStateListOf<Reparatur>()
         stagedReparaturChanges.gesamtreps.forEach {
             gesamtreps.add(it)
         }
@@ -138,7 +157,7 @@ fun Editscreen(
             navController.navigate("auswahl")
         }) {
             Icon(
-                Icons.Filled.List,
+                Icons.AutoMirrored.Filled.List,
                 contentDescription = "zum Auswahlscreen",
                 modifier = Modifier.padding(end = 5.dp)
             )
@@ -148,7 +167,7 @@ fun Editscreen(
         Spacer(modifier = Modifier.size(20.dp))
 
         LazyColumn(
-            modifier = Modifier.height(500.dp),
+            modifier = Modifier.height(300.dp),
             verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
             item {
@@ -181,13 +200,15 @@ fun Editscreen(
                 }
             }
             items(gesamtreps) {
+
                 Row(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     //Bezeichnung
                     Text(
-                        text = " ${it.reparatur_kategorie} : ${it.reparatur_name}",
-                        modifier = Modifier.weight(4f), color = MaterialTheme.colorScheme.background
+                        text = "${it.reparatur_kategorie} : ${it.reparatur_name}",
+                        modifier = Modifier.weight(4f),
+                        color = MaterialTheme.colorScheme.background
                     )
                     //Anzahl
                     Text(
@@ -205,68 +226,125 @@ fun Editscreen(
                     //Gesamtpreis
                     Text(
                         text = "${"%.2f".format(it.reparatur_preis * it.anzahl)}€",
-                        modifier = Modifier.weight(2f), color = MaterialTheme.colorScheme.background
+                        modifier = Modifier.weight(2f),
+                        color = MaterialTheme.colorScheme.background
                     )
                 }
-
             }
+
 
         }
 
         Spacer(modifier = Modifier.size(20.dp))
 
-        var extrastext by remember { mutableStateOf("") }
-        if (stagedReparaturChanges.extrasachen != "") {
-            extrastext = stagedReparaturChanges.extrasachen
-        }
-        var extrasnum by remember { mutableStateOf("") }
-        if (stagedReparaturChanges.aufpreis != 0.00F) {
-            extrasnum = stagedReparaturChanges.aufpreis.toString()
-        }
+        Text(
+            text = "Extras: ", color = MaterialTheme.colorScheme.background
+        )
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        var extrastext by remember { mutableStateOf("") }
+        var extrasnum by remember { mutableStateOf("") }
+
+        Row {
             OutlinedTextField(
                 value = extrastext,
                 onValueChange = {
                     extrastext = it
-                    stagedReparaturChanges.extrasachen = it
                 },
                 label = { Text("Extras") },
                 textStyle = TextStyle(color = MaterialTheme.colorScheme.background),
                 modifier = Modifier.weight(2f)
             )
-
             OutlinedTextField(
                 value = extrasnum,
                 onValueChange = {
                     extrasnum = it
-                    stagedReparaturChanges.aufpreis = it.toFloat()
                 },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 label = { Text(text = "Aufpreis") },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                textStyle = TextStyle(color = MaterialTheme.colorScheme.background),
             )
 
+            Button(onClick = {
+                if ((extrastext != "") && (extrasnum.toFloatOrNull() != null)) {
+
+                    stagedReparaturChanges.gesamtreps.add(
+                        Reparatur(
+                            reparatur_name = extrastext,
+                            reparatur_kategorie = "Extras",
+                            reparatur_preis = extrasnum.toFloat()
+                        )
+                    )
+                    extrasnum = ""
+                    extrastext = ""
+
+                }
+            }) {
+                Icon(imageVector = Icons.Filled.Done, contentDescription = "bestätigen")
+            }
         }
 
+        LazyColumn(
+            modifier = Modifier.height(100.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            items(gesamtreps) {
+                if (it.reparatur_kategorie == "Extras") {
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        //Bezeichnung
+                        Text(
+                            text = it.reparatur_name,
+                            modifier = Modifier.weight(2f),
+                            color = MaterialTheme.colorScheme.background
+                        )
+                        //Einzelpreis
+                        Text(
+                            text = "${"%.2f".format(it.reparatur_preis)}€",
+                            modifier = Modifier.weight(1f),
+                            color = MaterialTheme.colorScheme.background
+                        )
+                        //Löschen
+                        Button(onClick = {
+                            stagedReparaturChanges.gesamtreps.remove(it)
+                            gesamtreps.remove(it)
+                            println(stagedReparaturChanges.gesamtreps)
+                        }) {
+                            Icon(imageVector = Icons.Filled.Clear, contentDescription = "weg")
+                        }
+                    }
+                }
+            }
+        }
 
-        Spacer(modifier = Modifier.size(20.dp))
+        Spacer(modifier = Modifier.size(10.dp))
         //Gesamtpreis aufaddieren
         var gesamtpreis = 0.0F
         gesamtreps.forEach { rep -> gesamtpreis += (rep.reparatur_preis * rep.anzahl) }
-        //Stürzt sonst ab bei leerem String
-        gesamtpreis += try {
-            extrasnum.toFloat()
-        } catch (e: NumberFormatException) {
-            0.00F
+
+        var notiztext by remember { mutableStateOf("") }
+        if (stagedReparaturChanges.extrasachen != "") {
+            notiztext = stagedReparaturChanges.extrasachen
         }
+        OutlinedTextField(
+            modifier=Modifier.fillMaxWidth(),
+            value = notiztext,
+            onValueChange = {
+                notiztext = it
+                stagedReparaturChanges.extrasachen = it
+            },
+            label = { Text("Notizen") },
+            textStyle = TextStyle(color = MaterialTheme.colorScheme.background)
+        )
+
+        Spacer(modifier = Modifier.size(10.dp))
 
         Button(modifier = Modifier.align(Alignment.CenterHorizontally), onClick = {
 
             if (nameinput != "") {
                 if (numberinput != "") {
-
                     if (gesamtreps.isNotEmpty()) {
                         //Wegen OnConflictStrategy.REPLACE sollte das hier bei gleicher ID den Kunden ersetzen
                         kundeViewModel.insert(
@@ -278,12 +356,7 @@ fun Editscreen(
                                 numberinput,
                                 "eingegangen",
                                 gesamtreps,
-                                extrastext,
-                                try {
-                                    extrasnum.toFloat()
-                                } catch (e: NumberFormatException) {
-                                    0.00F
-                                }
+                                notiztext
                             )
                         )
                         //Keine Changes staged

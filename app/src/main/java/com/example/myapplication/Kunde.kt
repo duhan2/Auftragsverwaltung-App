@@ -34,12 +34,12 @@ data class Kunde (
     @ColumnInfo(name = "Reparaturenliste")
     var reparaturliste: List<Reparatur>,
 
-   @ColumnInfo(name = "Extras", defaultValue = "")
+    @ColumnInfo(name = "Extras", defaultValue = "")
     var extras: String = "",
 
-    @ColumnInfo(name = "Aufpreis", defaultValue = "0.00")
+    /*@ColumnInfo(name = "Aufpreis", defaultValue = "0.00")
     var aufpreis: Float = 0.00F,
-
+*/
 )
 
 class KundeConverter {

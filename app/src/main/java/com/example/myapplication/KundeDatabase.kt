@@ -1,15 +1,14 @@
 package com.example.myapplication
 
 import android.content.Context
-import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
 @Database(
-    entities = [Kunde::class], version = 2,
-    //autoMigrations = [AutoMigration(from = 1, to = 2)]
+    entities = [Kunde::class], version = 3,
+    //autoMigrations = [AutoMigration(from = 2, to = 3, spec = KundeDatabase.DeleteOldColumn::class)]
 )
 @TypeConverters(KundeConverter::class, DatumConverter::class)
 abstract class KundeDatabase : RoomDatabase() {
@@ -39,4 +38,13 @@ abstract class KundeDatabase : RoomDatabase() {
             }
         }
     }
+/*
+    @DeleteColumn.Entries(
+        DeleteColumn(
+            tableName = "kunden_tabelle",
+            columnName = "Aufpreis"
+        )
+    )
+    class DeleteOldColumn : AutoMigrationSpec
+*/
 }

@@ -14,7 +14,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -78,7 +78,7 @@ fun Homescreen(
                 Kunde_LoeschButton(item, kundeViewModel)
 
             }
-            Divider(thickness = 1.dp, color = Color.DarkGray)
+            HorizontalDivider(thickness = 1.dp, color = Color.DarkGray)
         }
     }
 

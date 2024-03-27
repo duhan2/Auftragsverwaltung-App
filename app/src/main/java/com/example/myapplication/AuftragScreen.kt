@@ -3,6 +3,7 @@ package com.example.myapplication
 import android.telephony.SmsManager
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,9 +11,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -113,7 +117,6 @@ fun AuftragScreen(reparaturChanges: ReparaturChanges, kundeViewModel: KundeViewM
 
         item {
 
-
             Row {
                 Text(
                     text = "Auftragsstatus: ",
@@ -128,6 +131,7 @@ fun AuftragScreen(reparaturChanges: ReparaturChanges, kundeViewModel: KundeViewM
             }
         }
         item {
+            HorizontalDivider(thickness = 1.dp, color = Color.DarkGray)
             Spacer(modifier = Modifier.height(20.dp))
         }
         item {
@@ -159,45 +163,43 @@ fun AuftragScreen(reparaturChanges: ReparaturChanges, kundeViewModel: KundeViewM
             }
         }
         items(reparaturChanges.gesamtreps) {
-            Row(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                //Bezeichnung
-                Text(
-                    text = " ${it.reparatur_kategorie} : ${it.reparatur_name}",
-                    modifier = Modifier.weight(4f), color = MaterialTheme.colorScheme.background
-                )
-                //Anzahl
-                Text(
-                    text = "${it.anzahl}",
-                    modifier = Modifier.weight(2f),
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.background
-                )
-                //Einzelpreis
-                Text(
-                    text = "${"%.2f".format(it.reparatur_preis)}€",
-                    modifier = Modifier.weight(2f),
-                    color = MaterialTheme.colorScheme.background
-                )
-                //Gesamtpreis
-                Text(
-                    text = "${"%.2f".format(it.reparatur_preis * it.anzahl)}€",
-                    modifier = Modifier.weight(2f), color = MaterialTheme.colorScheme.background
-                )
+            if (it.reparatur_kategorie != "Extras") {
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    //Bezeichnung
+                    Text(
+                        text = "${it.reparatur_kategorie} : ${it.reparatur_name}",
+                        modifier = Modifier.weight(4f), color = MaterialTheme.colorScheme.background
+                    )
+                    //Anzahl
+                    Text(
+                        text = "${it.anzahl}",
+                        modifier = Modifier.weight(2f),
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.background
+                    )
+                    //Einzelpreis
+                    Text(
+                        text = "${"%.2f".format(it.reparatur_preis)}€",
+                        modifier = Modifier.weight(2f),
+                        color = MaterialTheme.colorScheme.background
+                    )
+                    //Gesamtpreis
+                    Text(
+                        text = "${"%.2f".format(it.reparatur_preis * it.anzahl)}€",
+                        modifier = Modifier.weight(2f), color = MaterialTheme.colorScheme.background
+                    )
+                }
+                HorizontalDivider(thickness = 1.dp, color = Color.Gray)
             }
-
         }
 
         item {
             Row {
                 Text(
                     text = "Extras: ",
-                    fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.background
-                )
-                Text(
-                    text = reparaturChanges.extrasachen,
-                    color = MaterialTheme.colorScheme.background,
+                    fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.background,
                     modifier = Modifier.weight(2f)
                 )
                 Text(
@@ -206,14 +208,36 @@ fun AuftragScreen(reparaturChanges: ReparaturChanges, kundeViewModel: KundeViewM
                     color = MaterialTheme.colorScheme.background,
                     modifier = Modifier.weight(1f)
                 )
-                Text(
-                    text = "%.2f".format(reparaturChanges.aufpreis) + "€",
-                    color = MaterialTheme.colorScheme.background,
-                )
+
             }
         }
 
+        items(reparaturChanges.gesamtreps) {
+            if (it.reparatur_kategorie == "Extras") {
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    //Bezeichnung
+                    Text(
+                        text = it.reparatur_name,
+                        modifier = Modifier.weight(2f), color = MaterialTheme.colorScheme.background
+                    )
+                    //Einzelpreis
+                    Text(
+                        text = "${"%.2f".format(it.reparatur_preis)}€",
+                        modifier = Modifier.weight(1f),
+                        color = MaterialTheme.colorScheme.background
+                    )
+
+                }
+            }
+
+        }
+
         item {
+
+            Spacer(modifier = Modifier.height(30.dp))
+
             Text(
                 text = "Summe = ${"%.2f".format(reparaturChanges.gesamtpreis)}€",
                 modifier = Modifier.fillMaxWidth(),
@@ -222,43 +246,62 @@ fun AuftragScreen(reparaturChanges: ReparaturChanges, kundeViewModel: KundeViewM
             )
         }
 
-
         // on below line we are adding a spacer.
         item {
-            Spacer(modifier = Modifier.height(100.dp))
+            Spacer(modifier = Modifier.height(20.dp))
         }
+
+        item {
+            Text(
+                text = "Notiz: ",
+                color = MaterialTheme.colorScheme.background,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = reparaturChanges.extrasachen,
+                color = MaterialTheme.colorScheme.background
+            )
+        }
+
+        item {
+            Spacer(modifier = Modifier.height(50.dp))
+        }
+
         item {
             val openAlertDialog1 = remember { mutableStateOf(false) }
             val openAlertDialog2 = remember { mutableStateOf(false) }
 
             Row {
 
-
-                Button(modifier = Modifier.weight(1f), onClick = {
-                    if (reparaturChanges.numberinput.startsWith("02151")) {
-                        Toast.makeText(
-                            context,
-                            "Kann keine SMS an Festnetznummer versenden",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    } else {
-                        if (reparaturChanges.auftragsstatus == "eingegangen") {
-                            //Altert Dialog öffnen
-                            message =
-                                "Hallo Herr/Frau " + reparaturChanges.nameinput + ",\nIhr Fahrrad ist zur Reparatur eingegangen." +
-                                        "\n\nMit freundlichen Grüßen\n" +
-                                        "Fahrradwelt Fischeln"
-                            openAlertDialog1.value = true
-                        } else {
+                Button(
+                    modifier = Modifier.weight(1f),
+                    shape = CutCornerShape(10),
+                    border = BorderStroke(1.dp, Color.Black),
+                    onClick = {
+                        if (reparaturChanges.numberinput.startsWith("02151")) {
                             Toast.makeText(
                                 context,
-                                "Auftrag bereits abgeschlossen",
+                                "Kann keine SMS an Festnetznummer versenden",
                                 Toast.LENGTH_LONG
                             ).show()
+                        } else {
+                            if (reparaturChanges.auftragsstatus == "eingegangen") {
+                                //Altert Dialog öffnen
+                                message =
+                                    "Hallo Herr/Frau " + reparaturChanges.nameinput + ",\nIhr Fahrrad ist zur Reparatur eingegangen." +
+                                            "\n\nMit freundlichen Grüßen\n" +
+                                            "Fahrradwelt Fischeln"
+                                openAlertDialog1.value = true
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "Auftrag bereits abgeschlossen",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
                         }
-                    }
 
-                }) {
+                    }) {
                     Text(
                         // on below line adding a text ,
                         // padding, color and font size.
@@ -311,37 +354,43 @@ fun AuftragScreen(reparaturChanges: ReparaturChanges, kundeViewModel: KundeViewM
 
                 //Divider(thickness = 1.dp, color = Color.DarkGray)
 
+                Spacer(modifier = Modifier.width(10.dp))
+
                 // on below line adding a button to send SMS
-                Button(modifier = Modifier.weight(1f), onClick = {
-                    //Hier kann man auch abfragen ob keine Nummer vorhanden ist, aber bis jetzt ist eine Nummer Pflicht
-                    //Wenn Nummer mit Festnetznummer anfängt
-                    if (reparaturChanges.numberinput.startsWith("02151")) {
-                        reparaturChanges.auftragsstatus = "abgeschlossen"
-                        status = "abgeschlossen"
-                        kundeViewModel.update(reparaturChanges.createKundenobj())
-                        Toast.makeText(
-                            context,
-                            "Kann keine SMS an Festnetznummer versenden",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    } else {
-                        if (reparaturChanges.auftragsstatus == "eingegangen") {
-                            message =
-                                "Hallo Herr/Frau " + reparaturChanges.nameinput + ",\nIhr Fahrrad ist abholbereit. Die Reperaturkosten betragen " + "%.2f".format(
-                                    reparaturChanges.gesamtpreis
-                                ) + " €.\n\nMit freundlichen Grüßen\n" +
-                                        "Fahrradwelt Fischeln"
-                            //Altert Dialog öffnen
-                            openAlertDialog2.value = true
-                        } else {
+                Button(
+                    modifier = Modifier.weight(1f),
+                    shape = CutCornerShape(10),
+                    border = BorderStroke(1.dp, Color.Black),
+                    onClick = {
+                        //Hier kann man auch abfragen ob keine Nummer vorhanden ist, aber bis jetzt ist eine Nummer Pflicht
+                        //Wenn Nummer mit Festnetznummer anfängt
+                        if (reparaturChanges.numberinput.startsWith("02151")) {
+                            reparaturChanges.auftragsstatus = "abgeschlossen"
+                            status = "abgeschlossen"
+                            kundeViewModel.update(reparaturChanges.createKundenobj())
                             Toast.makeText(
                                 context,
-                                "Auftrag bereits abgeschlossen",
+                                "Kann keine SMS an Festnetznummer versenden",
                                 Toast.LENGTH_LONG
                             ).show()
+                        } else {
+                            if (reparaturChanges.auftragsstatus == "eingegangen") {
+                                message =
+                                    "Hallo Herr/Frau " + reparaturChanges.nameinput + ",\nIhr Fahrrad ist abholbereit. Die Reperaturkosten betragen " + "%.2f".format(
+                                        reparaturChanges.gesamtpreis
+                                    ) + " €.\n\nMit freundlichen Grüßen\n" +
+                                            "Fahrradwelt Fischeln"
+                                //Altert Dialog öffnen
+                                openAlertDialog2.value = true
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "Auftrag bereits abgeschlossen",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
                         }
-                    }
-                }) {
+                    }) {
                     // on below line creating a text for our button.
                     Text(
                         // on below line adding a text ,
