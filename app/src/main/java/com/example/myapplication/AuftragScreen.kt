@@ -11,12 +11,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CutCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,11 +37,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import java.time.format.DateTimeFormatter
 
 @RequiresApi(34)
 @Composable
-fun AuftragScreen(reparaturChanges: ReparaturChanges, kundeViewModel: KundeViewModel) {
+fun AuftragScreen(
+    navController: NavController,
+    reparaturChanges: ReparaturChanges,
+    kundeViewModel: KundeViewModel
+) {
 
     //Daten werden vorher in Zwischenspeicher reparaturChanges gespeichert
     //und hier wieder abgefragt
@@ -268,8 +279,8 @@ fun AuftragScreen(reparaturChanges: ReparaturChanges, kundeViewModel: KundeViewM
         }
 
         item {
-            val openAlertDialog1 = remember { mutableStateOf(false) }
-            val openAlertDialog2 = remember { mutableStateOf(false) }
+            var openAlertDialog1 by remember { mutableStateOf(false) }
+            var openAlertDialog2 by remember { mutableStateOf(false) }
 
             Row {
 
@@ -291,7 +302,7 @@ fun AuftragScreen(reparaturChanges: ReparaturChanges, kundeViewModel: KundeViewM
                                     "Hallo Herr/Frau " + reparaturChanges.nameinput + ",\nIhr Fahrrad ist zur Reparatur eingegangen." +
                                             "\n\nMit freundlichen Grüßen\n" +
                                             "Fahrradwelt Fischeln"
-                                openAlertDialog1.value = true
+                                openAlertDialog1 = true
                             } else {
                                 Toast.makeText(
                                     context,
@@ -311,20 +322,21 @@ fun AuftragScreen(reparaturChanges: ReparaturChanges, kundeViewModel: KundeViewM
                         fontSize = 15.sp
                     )
                     when {
-                        openAlertDialog1.value -> {
+                        openAlertDialog1 -> {
 
                             AlertDialog(
-                                onDismissRequest = { openAlertDialog1.value = false },
+                                onDismissRequest = { openAlertDialog1 = false },
                                 onConfirmation = {// on below line running a try catch block for sending sms.
                                     try {
                                         // on below line initializing sms manager.
                                         val smsManager: SmsManager =
                                             context.getSystemService(SmsManager::class.java)
                                         // on below line sending sms
-                                        smsManager.sendTextMessage(
+                                        val parts = smsManager.divideMessage(message)
+                                        smsManager.sendMultipartTextMessage(
                                             phoneNumber,
                                             null,
-                                            message,
+                                            parts,
                                             null,
                                             null
                                         )
@@ -333,7 +345,7 @@ fun AuftragScreen(reparaturChanges: ReparaturChanges, kundeViewModel: KundeViewM
                                             "Message Sent",
                                             Toast.LENGTH_LONG
                                         ).show()
-                                        openAlertDialog1.value = false
+                                        openAlertDialog1 = false
 
                                     } catch (e: Exception) {
                                         // on below line handling error and
@@ -376,12 +388,14 @@ fun AuftragScreen(reparaturChanges: ReparaturChanges, kundeViewModel: KundeViewM
                         } else {
                             if (reparaturChanges.auftragsstatus == "eingegangen") {
                                 message =
-                                    "Hallo Herr/Frau " + reparaturChanges.nameinput + ",\nIhr Fahrrad ist abholbereit. Die Reperaturkosten betragen " + "%.2f".format(
+                                    "Hallo Herr/Frau " + reparaturChanges.nameinput + ",\nIhr Fahrrad ist abholbereit. Die Reparaturkosten betragen " + "%.2f".format(
                                         reparaturChanges.gesamtpreis
-                                    ) + " €.\n\nMit freundlichen Grüßen\n" +
+                                    ) + " €. Bitte holen Sie Ihr Fahrrad, aufgrund unserer beschränkten Lagerkapazitäten, schnellstmöglich ab." +
+                                            " So können wir gewährleisten, dass stets Platz für neue Reparaturannahmen vorhanden ist." +
+                                            "\nMit freundlichen Grüßen,\n" +
                                             "Fahrradwelt Fischeln"
                                 //Altert Dialog öffnen
-                                openAlertDialog2.value = true
+                                openAlertDialog2 = true
                             } else {
                                 Toast.makeText(
                                     context,
@@ -401,20 +415,20 @@ fun AuftragScreen(reparaturChanges: ReparaturChanges, kundeViewModel: KundeViewM
                         fontSize = 15.sp
                     )
                     when {
-                        openAlertDialog2.value -> {
-                            //println("Ich bin in Kategorie ${selectedOption.kategorie_name} ")
+                        openAlertDialog2 -> {
                             AlertDialog(
-                                onDismissRequest = { openAlertDialog2.value = false },
+                                onDismissRequest = { openAlertDialog2 = false },
                                 onConfirmation = {// on below line running a try catch block for sending sms.
                                     try {
                                         // on below line initializing sms manager.
                                         val smsManager: SmsManager =
                                             context.getSystemService(SmsManager::class.java)
                                         // on below line sending sms
-                                        smsManager.sendTextMessage(
+                                        val parts = smsManager.divideMessage(message)
+                                        smsManager.sendMultipartTextMessage(
                                             phoneNumber,
                                             null,
-                                            message,
+                                            parts,
                                             null,
                                             null
                                         )
@@ -425,7 +439,7 @@ fun AuftragScreen(reparaturChanges: ReparaturChanges, kundeViewModel: KundeViewM
                                             "Message Sent",
                                             Toast.LENGTH_LONG
                                         ).show()
-                                        openAlertDialog2.value = false
+                                        openAlertDialog2 = false
                                         reparaturChanges.auftragsstatus = "abgeschlossen"
                                         status = "abgeschlossen"
                                         kundeViewModel.update(reparaturChanges.createKundenobj())
@@ -446,6 +460,43 @@ fun AuftragScreen(reparaturChanges: ReparaturChanges, kundeViewModel: KundeViewM
                         }
                     }
                 }
+
+            }
+        }
+
+        item {
+            Spacer(modifier = Modifier.size(100.dp))
+            var openAlertDialog3 by remember { mutableStateOf(false) }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Button(
+                    onClick = {
+                        openAlertDialog3 = true
+                    },
+                    colors = ButtonColors(Color.Red, Color.White, Color.DarkGray, Color.Gray),
+                    shape = CircleShape
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Delete,
+                        contentDescription = "abbrechen",
+                        modifier = Modifier.size(60.dp)
+                    )
+                }
+            }
+            when {
+                openAlertDialog3 ->
+                    AlertDialog(
+                        onDismissRequest = { openAlertDialog3 = false },
+                        onConfirmation = {
+                            kundeViewModel.delete(reparaturChanges.createKundenobj())
+                            openAlertDialog3 = false
+                            navController.navigate("home")
+                        },
+                        dialogText = "Auftrag löschen und zum Aufträge-Screen zurückkehren.",
+                        dialogTitle = "Auftrag wirklich löschen ?"
+                    )
             }
         }
     }

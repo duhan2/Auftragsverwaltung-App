@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -43,7 +45,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
+@SuppressLint("UnrememberedMutableState")
 @RequiresApi(34)
 @Composable
 fun Editscreen(
@@ -71,13 +75,13 @@ fun Editscreen(
         if (temp != null) {
             size = temp.id
         }
-        val idListe = Array<Boolean>(size) { false }
+        val idListe = Array(size) { false }
         //Jede vergebene ID = true
-        kundenliste.forEach { idListe[it.id-1] = true }
+        kundenliste.forEach { idListe[it.id - 1] = true }
         var kundenid = 0
         //Wenn id nicht vergeben ist
         loop@ for (i in 1..size) {
-            if (!idListe[i-1]){
+            if (!idListe[i - 1]) {
                 //Dann kundenid = i und raus aus der loop
                 kundenid = i
                 break@loop
@@ -200,38 +204,72 @@ fun Editscreen(
                 }
             }
             items(gesamtreps) {
-
-                Row(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    //Bezeichnung
-                    Text(
-                        text = "${it.reparatur_kategorie} : ${it.reparatur_name}",
-                        modifier = Modifier.weight(4f),
-                        color = MaterialTheme.colorScheme.background
-                    )
-                    //Anzahl
-                    Text(
-                        text = "${it.anzahl}",
-                        modifier = Modifier.weight(2f),
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.background
-                    )
-                    //Einzelpreis
-                    Text(
-                        text = "${"%.2f".format(it.reparatur_preis)}€",
-                        modifier = Modifier.weight(2f),
-                        color = MaterialTheme.colorScheme.background
-                    )
-                    //Gesamtpreis
-                    Text(
-                        text = "${"%.2f".format(it.reparatur_preis * it.anzahl)}€",
-                        modifier = Modifier.weight(2f),
-                        color = MaterialTheme.colorScheme.background
-                    )
+                if (it.reparatur_kategorie != "Extras") {
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        //Bezeichnung
+                        Text(
+                            text = "${it.reparatur_kategorie} : ${it.reparatur_name}",
+                            modifier = Modifier.weight(4f),
+                            color = MaterialTheme.colorScheme.background
+                        )
+                        //Anzahl
+                        Text(
+                            text = "${it.anzahl}",
+                            modifier = Modifier.weight(2f),
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.background
+                        )
+                        //Einzelpreis
+                        Text(
+                            text = "${"%.2f".format(it.reparatur_preis)}€",
+                            modifier = Modifier.weight(2f),
+                            color = MaterialTheme.colorScheme.background
+                        )
+                        //Gesamtpreis
+                        Text(
+                            text = "${"%.2f".format(it.reparatur_preis * it.anzahl)}€",
+                            modifier = Modifier.weight(2f),
+                            color = MaterialTheme.colorScheme.background
+                        )
+                    }
                 }
             }
 
+            items(gesamtreps) {
+                if (it.reparatur_kategorie == "Extras") {
+                    Row(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        //Bezeichnung
+                        Text(
+                            text = "${it.reparatur_kategorie} : ${it.reparatur_name}",
+                            modifier = Modifier.weight(4f),
+                            color = MaterialTheme.colorScheme.background
+                        )
+                        //Anzahl
+                        Text(
+                            text = "${it.anzahl}",
+                            modifier = Modifier.weight(2f),
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.background
+                        )
+                        //Einzelpreis
+                        Text(
+                            text = "${"%.2f".format(it.reparatur_preis)}€",
+                            modifier = Modifier.weight(2f),
+                            color = MaterialTheme.colorScheme.background
+                        )
+                        //Gesamtpreis
+                        Text(
+                            text = "${"%.2f".format(it.reparatur_preis * it.anzahl)}€",
+                            modifier = Modifier.weight(2f),
+                            color = MaterialTheme.colorScheme.background
+                        )
+                    }
+                }
+            }
 
         }
 
@@ -292,7 +330,7 @@ fun Editscreen(
             items(gesamtreps) {
                 if (it.reparatur_kategorie == "Extras") {
                     Row(
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
                     ) {
                         //Bezeichnung
                         Text(
@@ -306,14 +344,26 @@ fun Editscreen(
                             modifier = Modifier.weight(1f),
                             color = MaterialTheme.colorScheme.background
                         )
+                        //Edit
+                        Button(onClick = {
+                            extrastext = it.reparatur_name
+                            extrasnum = "%.2f".format(Locale.US,it.reparatur_preis)
+
+                            stagedReparaturChanges.gesamtreps.remove(it)
+                            gesamtreps.remove(it)
+                        }) {
+                            Icon(imageVector = Icons.Filled.Edit, contentDescription = "editier")
+                        }
                         //Löschen
                         Button(onClick = {
                             stagedReparaturChanges.gesamtreps.remove(it)
                             gesamtreps.remove(it)
-                            println(stagedReparaturChanges.gesamtreps)
+                            //println(stagedReparaturChanges.gesamtreps)
                         }) {
                             Icon(imageVector = Icons.Filled.Clear, contentDescription = "weg")
                         }
+
+
                     }
                 }
             }
@@ -329,7 +379,7 @@ fun Editscreen(
             notiztext = stagedReparaturChanges.extrasachen
         }
         OutlinedTextField(
-            modifier=Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             value = notiztext,
             onValueChange = {
                 notiztext = it

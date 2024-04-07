@@ -52,9 +52,11 @@ fun AuswahlScreen(
             //Kopie der Liste übergeben damit stagedChanges nicht bearbeitet wird,
             // solange man nicht den bestätigen Knopf drückt
             //FRAUDWATCH
+            reparaturen.add(it.copy())
+            /*
             if (it.reparatur_kategorie != "Extras") {
                 reparaturen.add(it.copy())
-            }
+            }*/
         }
     }
 

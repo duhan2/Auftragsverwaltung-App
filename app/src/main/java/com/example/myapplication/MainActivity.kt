@@ -16,7 +16,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.MaterialTheme
@@ -61,7 +60,6 @@ class MainActivity : ComponentActivity() {
     private var kategorieChanges = KategorieChanges()
 
     @RequiresApi(34)
-    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
@@ -301,6 +299,7 @@ class MainActivity : ComponentActivity() {
 
                             composable("auftrag") {
                                 AuftragScreen(
+                                    navController= navController,
                                     reparaturChanges = reparaturChanges,
                                     kundeViewModel = kundeviewModel
                                 )
