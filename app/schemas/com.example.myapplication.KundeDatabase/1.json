@@ -1,0 +1,78 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "4b26066f93dda74b87e6750ce5760ce5",
+    "entities": [
+      {
+        "tableName": "kunden_tabelle",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `Name` TEXT NOT NULL, `Gesamtpreis` REAL NOT NULL, `Telefonnummer` TEXT NOT NULL, `Auftragsstatus` TEXT NOT NULL, `Reparaturenliste` TEXT NOT NULL, `Extras` TEXT NOT NULL DEFAULT '', `Eingansdatum` TEXT NOT NULL DEFAULT '')",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "Name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gesPreis",
+            "columnName": "Gesamtpreis",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "telNummer",
+            "columnName": "Telefonnummer",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "Auftragsstatus",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reparaturliste",
+            "columnName": "Reparaturenliste",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "extras",
+            "columnName": "Extras",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "''"
+          },
+          {
+            "fieldPath": "eingansdatum",
+            "columnName": "Eingansdatum",
+            "affinity": "TEXT",
+            "notNull": true,
+            "defaultValue": "''"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": true,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4b26066f93dda74b87e6750ce5760ce5')"
+    ]
+  }
+}

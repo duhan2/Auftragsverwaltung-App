@@ -41,7 +41,6 @@ fun Homescreen(
 
     val list by kundeViewModel.getallKunden().observeAsState(listOf())
 
-
     LazyColumn(
         modifier = Modifier.fillMaxWidth(),
         contentPadding = PaddingValues(16.dp),

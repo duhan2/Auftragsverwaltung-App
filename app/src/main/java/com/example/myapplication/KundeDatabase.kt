@@ -6,11 +6,11 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 
+
 @Database(
-    entities = [Kunde::class], version = 3,
-    //autoMigrations = [AutoMigration(from = 2, to = 3, spec = KundeDatabase.DeleteOldColumn::class)]
+    entities = [Kunde::class], version = 1
 )
-@TypeConverters(KundeConverter::class, DatumConverter::class)
+@TypeConverters(KundeConverter::class)
 abstract class KundeDatabase : RoomDatabase() {
 
     abstract fun kundenDao(): KundeDao
@@ -30,21 +30,15 @@ abstract class KundeDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     KundeDatabase::class.java,
-                    "kunde_database"
+                    "kunde_database.db"
                 ).build()
                 INSTANCE = instance
                 // return instance
                 instance
             }
         }
+
+
     }
-/*
-    @DeleteColumn.Entries(
-        DeleteColumn(
-            tableName = "kunden_tabelle",
-            columnName = "Aufpreis"
-        )
-    )
-    class DeleteOldColumn : AutoMigrationSpec
-*/
+
 }

@@ -5,7 +5,6 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
 import com.google.gson.Gson
-import java.time.LocalDate
 
 
 @Entity(tableName = "kunden_tabelle")
@@ -21,9 +20,6 @@ data class Kunde (
     @ColumnInfo(name = "Gesamtpreis")
     var gesPreis: Float = 0.00F,
 
-    @ColumnInfo(name= "Auftragsdatum")
-    var gebrachtam: LocalDate,
-
     @ColumnInfo(name = "Telefonnummer")
     var telNummer: String = "",
 
@@ -37,9 +33,9 @@ data class Kunde (
     @ColumnInfo(name = "Extras", defaultValue = "")
     var extras: String = "",
 
-    /*@ColumnInfo(name = "Aufpreis", defaultValue = "0.00")
-    var aufpreis: Float = 0.00F,
-*/
+    @ColumnInfo(name= "Eingansdatum", defaultValue = "")
+    var eingansdatum: String = ""
+
 )
 
 class KundeConverter {
@@ -49,16 +45,4 @@ class KundeConverter {
 
     @TypeConverter
     fun jsonToList(value:String) = Gson().fromJson(value,Array<Reparatur>::class.java).toList()
-}
-
-class DatumConverter{
-    @TypeConverter
-    fun timeToString(time:LocalDate): String{
-        return time.toString()
-    }
-
-    @TypeConverter
-    fun stringToTime(string: String): LocalDate {
-        return LocalDate.parse(string)
-    }
 }

@@ -38,7 +38,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import java.time.format.DateTimeFormatter
 
 @RequiresApi(34)
 @Composable
@@ -120,7 +119,7 @@ fun AuftragScreen(
                     fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.background
                 )
                 Text(
-                    text = reparaturChanges.localDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
+                    text = reparaturChanges.eingangsdatum,
                     modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.background
                 )
             }

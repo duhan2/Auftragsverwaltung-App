@@ -69,7 +69,6 @@ fun Editscreen(
         val kundenliste by kundeViewModel.getallKunden().observeAsState(listOf())
 
         //Algorithmus zum erschaffen der kleinstmöglichen ID
-        //Erschaffe array von 50
         var size = 1
         val temp = kundenliste.maxByOrNull { it.id }
         if (temp != null) {
@@ -87,12 +86,6 @@ fun Editscreen(
                 break@loop
             }
         }
-        /*
-        var kundenid: Int = when (val x = kundenliste.minByOrNull { it.id }?.id) {
-            null -> 1
-            1 -> (kundenliste.maxBy { it.id }.id + 1)
-            else -> (x - 1)
-        }*/
 
         //Overwrite ID wenn prepopulate
         if (stagedReparaturChanges.kundenid != 0) {
@@ -110,13 +103,6 @@ fun Editscreen(
             nameinput = it
             stagedReparaturChanges.nameinput = it
         }, label = { Text("Name") })
-
-        //prepopulate localDate
-        val localDate: LocalDate = if (stagedReparaturChanges.localDate == LocalDate.EPOCH) {
-            LocalDate.now()
-        } else {
-            stagedReparaturChanges.localDate
-        }
 
         Spacer(modifier = Modifier.size(30.dp))
 
@@ -139,8 +125,12 @@ fun Editscreen(
 
         Spacer(modifier = Modifier.size(20.dp))
 
-        val pattern = DateTimeFormatter.ofPattern("dd/MM/yyyy")
-        val formattedDate: String = localDate.format(pattern) //17-02-2022
+        //prepopulate localDate
+        val pattern = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+        var formattedDate: String = LocalDate.now().format(pattern) //17.02.2022
+        if (stagedReparaturChanges.eingangsdatum != "") {
+            formattedDate = stagedReparaturChanges.eingangsdatum
+        }
 
         Text(
             text = "Eingangsdatum $formattedDate",
@@ -399,14 +389,14 @@ fun Editscreen(
                         //Wegen OnConflictStrategy.REPLACE sollte das hier bei gleicher ID den Kunden ersetzen
                         kundeViewModel.insert(
                             Kunde(
-                                kundenid,
-                                nameinput,
-                                gesamtpreis,
-                                localDate,
-                                numberinput,
-                                "eingegangen",
-                                gesamtreps,
-                                notiztext
+                                id = kundenid,
+                                name = nameinput,
+                                gesPreis = gesamtpreis,
+                                telNummer = numberinput,
+                                status = "eingegangen",
+                                reparaturliste = gesamtreps,
+                                extras = notiztext,
+                                eingansdatum = formattedDate
                             )
                         )
                         //Keine Changes staged

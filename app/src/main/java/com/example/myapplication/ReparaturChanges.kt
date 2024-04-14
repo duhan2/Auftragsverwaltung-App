@@ -1,7 +1,6 @@
 package com.example.myapplication
 
 import androidx.annotation.RequiresApi
-import java.time.LocalDate
 
 class ReparaturChanges {
 
@@ -11,10 +10,8 @@ class ReparaturChanges {
     var auftragsstatus: String = ""
     var gesamtpreis: Float = 0.00F
     var extrasachen: String = ""
+    var eingangsdatum: String = ""
     //var aufpreis: Float = 0.00F
-
-    @RequiresApi(34)
-    var localDate: LocalDate = LocalDate.EPOCH
 
     //eventuell macht das probleme
     var gesamtreps = mutableListOf<Reparatur>()
@@ -24,11 +21,10 @@ class ReparaturChanges {
         this.kundenid = kunde.id
         this.nameinput = kunde.name
         this.numberinput = kunde.telNummer
-        this.localDate = kunde.gebrachtam
         this.auftragsstatus = kunde.status
         this.gesamtpreis = kunde.gesPreis
         this.extrasachen = kunde.extras
-        //this.aufpreis = kunde.aufpreis
+        this.eingangsdatum = kunde.eingansdatum
 
         //!Kann sein dass die Elemente kopiert werden müssen und nicht refrerenziert werden dürfen!
         this.gesamtreps = kunde.reparaturliste.toMutableList()
@@ -40,11 +36,11 @@ class ReparaturChanges {
             this.kundenid,
             this.nameinput,
             this.gesamtpreis,
-            this.localDate,
             this.numberinput,
             this.auftragsstatus,
             this.gesamtreps,
-            this.extrasachen
+            this.extrasachen,
+            this.eingangsdatum
         )
     }//,this.aufpreis
 
@@ -54,6 +50,6 @@ class ReparaturChanges {
         this.gesamtreps.clear()
         this.nameinput = ""
         this.extrasachen = ""
-        //this.aufpreis = 0.00F
+        this.eingangsdatum = ""
     }
 }

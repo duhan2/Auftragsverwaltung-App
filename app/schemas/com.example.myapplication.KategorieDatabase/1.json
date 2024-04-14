@@ -1,0 +1,40 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "08d173756ffacc2459e0844fa65f0230",
+    "entities": [
+      {
+        "tableName": "kategorie_tabelle",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`Kategorie-Bezeichnung` TEXT NOT NULL, `Reparaturen` TEXT NOT NULL, PRIMARY KEY(`Kategorie-Bezeichnung`))",
+        "fields": [
+          {
+            "fieldPath": "kategorie_name",
+            "columnName": "Kategorie-Bezeichnung",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "reparaturliste",
+            "columnName": "Reparaturen",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "Kategorie-Bezeichnung"
+          ]
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '08d173756ffacc2459e0844fa65f0230')"
+    ]
+  }
+}
