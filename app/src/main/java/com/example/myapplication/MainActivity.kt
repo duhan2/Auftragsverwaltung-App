@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
@@ -23,9 +24,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
@@ -36,7 +39,7 @@ import com.example.compose.AppTheme
 
 class MainActivity : ComponentActivity() {
 
-    private val kundeviewModel: KundeViewModel by lazy {
+    private val kundeViewModel: KundeViewModel by lazy {
         ViewModelProvider(
             this,
             KundeViewModelFactory(KundeRepository(KundeDatabase.getDatabase(this).kundenDao()))
@@ -77,6 +80,8 @@ class MainActivity : ComponentActivity() {
                     val navBackStackEntry by navController.currentBackStackEntryAsState()
                     val currentDestination = navBackStackEntry?.destination
 
+                    val kundenliste = kundeViewModel.getallKunden().observeAsState(listOf())
+                    val kategorieliste = kategorieViewModel.getallKategorien().observeAsState(listOf())
 
                     Scaffold(
                         topBar = {
@@ -221,7 +226,7 @@ class MainActivity : ComponentActivity() {
 
                                     navController.navigate("edit")
                                 }) {
-                                    Icon(Icons.Default.Add, contentDescription = "Add")
+                                    Icon(Icons.Default.Add, contentDescription = "Add", modifier = Modifier.size(66.dp))
                                 }
 
                                 "reparaturen" -> LargeFloatingActionButton(
@@ -232,7 +237,7 @@ class MainActivity : ComponentActivity() {
 
                                         navController.navigate("reparatureingabe")
                                     }) {
-                                    Icon(Icons.Default.Add, contentDescription = "Add")
+                                    Icon(Icons.Default.Add, contentDescription = "Add", modifier = Modifier.size(66.dp))
                                 }
                             }
 
@@ -249,9 +254,10 @@ class MainActivity : ComponentActivity() {
                             composable("home") {
 
                                 Homescreen(
-                                    kundeViewModel = kundeviewModel,
+                                    kundeViewModel = kundeViewModel,
                                     navController = navController,
-                                    stagedReparaturChanges = reparaturChanges
+                                    stagedReparaturChanges = reparaturChanges,
+                                    kundenliste = kundenliste
                                 )
 
                             }
@@ -260,13 +266,14 @@ class MainActivity : ComponentActivity() {
                                 ReparaturScreen(
                                     kategorieViewModel = kategorieViewModel,
                                     navController = navController,
-                                    kategorieChanges = kategorieChanges
+                                    kategorieChanges = kategorieChanges,
+                                    kategorieliste= kategorieliste
                                 )
                             }
 
                             composable("edit") {
                                 Editscreen(
-                                    kundeViewModel = kundeviewModel,
+                                    kundeViewModel = kundeViewModel,
                                     navController = navController,
                                     stagedReparaturChanges = reparaturChanges
                                 )
@@ -292,8 +299,9 @@ class MainActivity : ComponentActivity() {
                             composable("auswahl") {
                                 AuswahlScreen(
                                     navController = navController,
-                                    kategorieViewModel = kategorieViewModel,
-                                    stagedReparaturChanges = reparaturChanges
+                                    //kategorieViewModel = kategorieViewModel,
+                                    stagedReparaturChanges = reparaturChanges,
+                                    kategorieliste = kategorieliste
                                 )
                             }
 
@@ -301,7 +309,7 @@ class MainActivity : ComponentActivity() {
                                 AuftragScreen(
                                     navController= navController,
                                     reparaturChanges = reparaturChanges,
-                                    kundeViewModel = kundeviewModel
+                                    kundeViewModel = kundeViewModel
                                 )
                             }
 

@@ -16,12 +16,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material3.Button
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,6 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,11 +40,12 @@ import androidx.navigation.NavController
 @Composable
 fun AuswahlScreen(
     navController: NavController,
-    kategorieViewModel: KategorieViewModel,
-    stagedReparaturChanges: ReparaturChanges
+    //kategorieViewModel: KategorieViewModel,
+    stagedReparaturChanges: ReparaturChanges,
+    kategorieliste: State<List<Kategorie>>
 ) {
 
-    val list by kategorieViewModel.getallKategorien().observeAsState(listOf())
+//    val list by kategorieViewModel.getallKategorien().observeAsState(listOf())
 
     val reparaturen = mutableListOf<Reparatur>()
 
@@ -63,19 +66,23 @@ fun AuswahlScreen(
     LazyColumn(
         modifier = Modifier.fillMaxWidth(),
         contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        list.forEach { kategorie ->
+        kategorieliste.value.forEach { kategorie ->
 
             stickyHeader {
                 Text(
                     text = kategorie.kategorie_name,
                     fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.background
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.background
                 )
             }
 
-            items(kategorie.reparaturliste) { item ->
+            items(items = kategorie.reparaturliste, key = { item: Reparatur ->
+                // Return a stable + unique key for the item
+                item.id
+            }) { item ->
 
                 var expanded by remember {
                     mutableStateOf(false)
@@ -90,7 +97,8 @@ fun AuswahlScreen(
                 }
                 Row(modifier = Modifier
                     .clickable { expanded = !expanded }
-                    .fillMaxWidth()) {
+                    .fillMaxWidth()
+                    .padding(vertical = 15.dp)) {
 
                     Column {
 
@@ -104,8 +112,9 @@ fun AuswahlScreen(
 
                                 Button(
                                     modifier = Modifier
-                                        .weight(1f)
+                                        //.weight(1f)
                                         .padding(horizontal = 16.dp),
+                                    shape = RectangleShape,
                                     onClick = {
                                         when (amount) {
                                             0 -> reparaturen.remove(item)
@@ -140,8 +149,8 @@ fun AuswahlScreen(
                                 Box(
                                     modifier = Modifier
                                         .background(color = Color.White)
-                                        .weight(1f)
-                                        .padding(horizontal = 16.dp)
+                                        //.weight(1f)
+                                        .padding(horizontal = 32.dp, vertical = 6.dp)
                                 ) {
                                     Text(
                                         text = amount.toString(),
@@ -151,8 +160,9 @@ fun AuswahlScreen(
                                 }
                                 Button(
                                     modifier = Modifier
-                                        .weight(1f)
+                                        //.weight(1f)
                                         .padding(horizontal = 16.dp),
+                                    shape = RectangleShape,
                                     onClick = {
                                         when (amount) {
                                             0 -> {
@@ -187,6 +197,7 @@ fun AuswahlScreen(
 
                     }
                 }
+                HorizontalDivider(thickness = 1.dp, color = Color.DarkGray)
             }
 
         }

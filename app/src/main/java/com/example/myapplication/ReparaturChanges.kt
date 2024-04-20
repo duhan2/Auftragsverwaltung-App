@@ -11,7 +11,6 @@ class ReparaturChanges {
     var gesamtpreis: Float = 0.00F
     var extrasachen: String = ""
     var eingangsdatum: String = ""
-    //var aufpreis: Float = 0.00F
 
     //eventuell macht das probleme
     var gesamtreps = mutableListOf<Reparatur>()

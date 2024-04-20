@@ -272,7 +272,7 @@ fun Editscreen(
         var extrastext by remember { mutableStateOf("") }
         var extrasnum by remember { mutableStateOf("") }
 
-        Row {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(
                 value = extrastext,
                 onValueChange = {
@@ -293,7 +293,7 @@ fun Editscreen(
                 modifier = Modifier.weight(1f),
                 textStyle = TextStyle(color = MaterialTheme.colorScheme.background),
             )
-
+            Spacer(modifier = Modifier.size(1.dp))
             Button(onClick = {
                 if ((extrastext != "") && (extrasnum.toFloatOrNull() != null)) {
 
@@ -428,7 +428,7 @@ fun Editscreen(
             }
 
         }) {
-            Icon(imageVector = Icons.Filled.Done, contentDescription = "Kunde hinzufügen")
+            Icon(imageVector = Icons.Filled.Done, contentDescription = "Kunde hinzufügen", modifier = Modifier.size(40.dp))
             Text(text = "Auftrag Hinzufügen")
         }
 
