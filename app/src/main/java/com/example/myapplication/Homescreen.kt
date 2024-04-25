@@ -93,7 +93,6 @@ fun RowScope.Kunde_LoeschButton(kunde: Kunde, kundeViewModel: KundeViewModel) {
     val openAlertDialog = remember { mutableStateOf(false) }
 
     OutlinedButton(
-        //ganz wichtig sonst schreibt der nicht nebeneinenader
         modifier = Modifier.weight(1f),
         colors = ButtonColors(Color.White, Color.Red, Color.DarkGray, Color.Gray),
         shape = CircleShape,
@@ -114,13 +113,11 @@ fun RowScope.Kunde_LoeschButton(kunde: Kunde, kundeViewModel: KundeViewModel) {
         }
         when {
             openAlertDialog.value -> {
-                //println("Ich bin in Kategorie ${selectedOption.kategorie_name} ")
                 AlertDialog(
                     onDismissRequest = { openAlertDialog.value = false },
                     onConfirmation = {
                         kundeViewModel.delete(kunde)
                         openAlertDialog.value = false
-                        //println("Confirmation registered")
                     },
                     dialogText = "Diese Aktion kann nicht rückgängig gemacht werden.",
                     dialogTitle = "Kunde löschen ?"

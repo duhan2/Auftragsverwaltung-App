@@ -72,7 +72,8 @@ fun Editscreen(
         var size = 1
         val temp = kundenliste.maxByOrNull { it.id }
         if (temp != null) {
-            size = temp.id
+            //Liste um 1 größer machen um bei voller Liste größte id generieren zu können
+            size = temp.id + 1
         }
         val idListe = Array(size) { false }
         //Jede vergebene ID = true
@@ -348,7 +349,6 @@ fun Editscreen(
                         Button(onClick = {
                             stagedReparaturChanges.gesamtreps.remove(it)
                             gesamtreps.remove(it)
-                            //println(stagedReparaturChanges.gesamtreps)
                         }) {
                             Icon(imageVector = Icons.Filled.Clear, contentDescription = "weg")
                         }
