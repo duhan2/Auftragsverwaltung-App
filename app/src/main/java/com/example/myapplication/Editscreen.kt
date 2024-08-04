@@ -68,30 +68,39 @@ fun Editscreen(
         //eventuell muss das eine statelist sein wenn anzeigefehler
         val kundenliste by kundeViewModel.getallKunden().observeAsState(listOf())
 
-        //Algorithmus zum erschaffen der kleinstmöglichen ID
         var size = 1
-        val temp = kundenliste.maxByOrNull { it.id }
-        if (temp != null) {
-            //Liste um 1 größer machen um bei voller Liste größte id generieren zu können
-            size = temp.id + 1
-        }
-        val idListe = Array(size) { false }
-        //Jede vergebene ID = true
-        kundenliste.forEach { idListe[it.id - 1] = true }
         var kundenid = 0
-        //Wenn id nicht vergeben ist
-        loop@ for (i in 1..size) {
-            if (!idListe[i - 1]) {
-                //Dann kundenid = i und raus aus der loop
-                kundenid = i
-                break@loop
-            }
-        }
 
         //Overwrite ID wenn prepopulate
         if (stagedReparaturChanges.kundenid != 0) {
             kundenid = stagedReparaturChanges.kundenid
+        } else {
+            //Algorithmus zum erschaffen der kleinstmöglichen ID
+            val temp = kundenliste.maxByOrNull { it.id }
+
+            if (temp != null) {
+                //Liste um 1 größer machen um bei voller Liste größte id generieren zu können
+                size = temp.id + 1
+            }
+            val idListe = Array(size) { false }
+            //Jede vergebene ID = true
+            kundenliste.forEach { idListe[it.id - 1] = true }
+            //Wenn id nicht vergeben ist
+            loop@ for (i in 0..size) {
+                if (!idListe[i]) {
+                    //Dann kundenid = i+1 und raus aus der loop
+                    kundenid = i + 1
+                    break@loop
+                }
+            }
         }
+
+        //Zum debuggen
+        Text(
+            text = "Kunden-ID: $kundenid",
+            color = MaterialTheme.colorScheme.background,
+            fontWeight = FontWeight.Bold
+        )
 
         var nameinput by remember { mutableStateOf("") }
 
@@ -321,7 +330,8 @@ fun Editscreen(
             items(gesamtreps) {
                 if (it.reparatur_kategorie == "Extras") {
                     Row(
-                        modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         //Bezeichnung
                         Text(
@@ -338,7 +348,7 @@ fun Editscreen(
                         //Edit
                         Button(onClick = {
                             extrastext = it.reparatur_name
-                            extrasnum = "%.2f".format(Locale.US,it.reparatur_preis)
+                            extrasnum = "%.2f".format(Locale.US, it.reparatur_preis)
 
                             stagedReparaturChanges.gesamtreps.remove(it)
                             gesamtreps.remove(it)
@@ -428,7 +438,11 @@ fun Editscreen(
             }
 
         }) {
-            Icon(imageVector = Icons.Filled.Done, contentDescription = "Kunde hinzufügen", modifier = Modifier.size(40.dp))
+            Icon(
+                imageVector = Icons.Filled.Done,
+                contentDescription = "Kunde hinzufügen",
+                modifier = Modifier.size(40.dp)
+            )
             Text(text = "Auftrag Hinzufügen")
         }
 

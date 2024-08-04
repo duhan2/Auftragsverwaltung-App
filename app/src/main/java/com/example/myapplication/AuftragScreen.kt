@@ -389,8 +389,7 @@ fun AuftragScreen(
                                 message =
                                     "Hallo Herr/Frau " + reparaturChanges.nameinput + ",\nIhr Fahrrad ist abholbereit. Die Reparaturkosten betragen " + "%.2f".format(
                                         reparaturChanges.gesamtpreis
-                                    ) + " €. Bitte holen Sie Ihr Fahrrad, aufgrund unserer beschränkten Lagerkapazitäten, schnellstmöglich ab." +
-                                            " So können wir gewährleisten, dass stets Platz für neue Reparaturannahmen vorhanden ist." +
+                                    ) + " €. Bitte holen Sie Ihr Fahrrad, innerhalb unserer Öffnungszeiten ab" +
                                             "\nMit freundlichen Grüßen,\n" +
                                             "Fahrradwelt Fischeln"
                                 //Altert Dialog öffnen
