@@ -36,6 +36,23 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.compose.AppTheme
+import com.example.myapplication.kategorie.KategorieChanges
+import com.example.myapplication.kategorie.KategorieDatabase
+import com.example.myapplication.kategorie.KategorieRepository
+import com.example.myapplication.kategorie.KategorieViewModel
+import com.example.myapplication.kategorie.KategorieViewModelFactory
+import com.example.myapplication.kunde.KundeDatabase
+import com.example.myapplication.kunde.KundeRepository
+import com.example.myapplication.kunde.KundeViewModel
+import com.example.myapplication.kunde.KundeViewModelFactory
+import com.example.myapplication.reparatur.ReparaturChanges
+import com.example.myapplication.screens.AuftragScreen
+import com.example.myapplication.screens.AuswahlScreen
+import com.example.myapplication.screens.Editscreen
+import com.example.myapplication.screens.Homescreen
+import com.example.myapplication.screens.KategorieEingabeScreen
+import com.example.myapplication.screens.ReparaturEingabeScreen
+import com.example.myapplication.screens.ReparaturScreen
 
 class MainActivity : ComponentActivity() {
 
