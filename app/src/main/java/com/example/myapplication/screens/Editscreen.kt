@@ -395,6 +395,11 @@ fun Editscreen(
 
         Spacer(modifier = Modifier.size(10.dp))
 
+        var status = "eingegangen"
+        if (stagedReparaturChanges.auftragsstatus == "abgeschlossen"){
+            status = "abgeschlossen"
+        }
+
         Button(modifier = Modifier.align(Alignment.CenterHorizontally), onClick = {
 
             if (nameinput != "") {
@@ -407,7 +412,7 @@ fun Editscreen(
                                 name = nameinput,
                                 gesPreis = gesamtpreis,
                                 telNummer = numberinput,
-                                status = "eingegangen",
+                                status = status,
                                 reparaturliste = gesamtreps,
                                 extras = notiztext,
                                 eingansdatum = formattedDate

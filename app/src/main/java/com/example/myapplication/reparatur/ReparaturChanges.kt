@@ -51,5 +51,6 @@ class ReparaturChanges {
         this.nameinput = ""
         this.extrasachen = ""
         this.eingangsdatum = ""
+        this.auftragsstatus = ""
     }
 }
