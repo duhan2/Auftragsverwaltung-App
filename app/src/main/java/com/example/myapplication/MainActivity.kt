@@ -36,6 +36,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.compose.AppTheme
+import com.example.myapplication.archiv.ArchivDatabase
+import com.example.myapplication.archiv.ArchivRepository
+import com.example.myapplication.archiv.ArchivViewModel
+import com.example.myapplication.archiv.ArchivViewModelFactory
 import com.example.myapplication.kategorie.KategorieChanges
 import com.example.myapplication.kategorie.KategorieDatabase
 import com.example.myapplication.kategorie.KategorieRepository
@@ -74,6 +78,13 @@ class MainActivity : ComponentActivity() {
         )[KategorieViewModel::class.java]
     }
 
+    private val archivViewModel: ArchivViewModel by lazy {
+        ViewModelProvider(
+            this,
+            ArchivViewModelFactory(ArchivRepository(ArchivDatabase.getDatabase(this).archivDao()))
+        )[ArchivViewModel::class.java]
+    }
+
     //Kein wirkliches ViewModel:D
     private var reparaturChanges = ReparaturChanges()
 
@@ -83,7 +94,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
 
         super.onCreate(savedInstanceState)
-
 
         setContent {
             AppTheme {
@@ -98,7 +108,8 @@ class MainActivity : ComponentActivity() {
                     val currentDestination = navBackStackEntry?.destination
 
                     val kundenliste = kundeViewModel.getallKunden().observeAsState(listOf())
-                    val kategorieliste = kategorieViewModel.getallKategorien().observeAsState(listOf())
+                    val kategorieliste =
+                        kategorieViewModel.getallKategorien().observeAsState(listOf())
 
                     Scaffold(
                         topBar = {
@@ -243,7 +254,11 @@ class MainActivity : ComponentActivity() {
 
                                     navController.navigate("edit")
                                 }) {
-                                    Icon(Icons.Default.Add, contentDescription = "Add", modifier = Modifier.size(66.dp))
+                                    Icon(
+                                        Icons.Default.Add,
+                                        contentDescription = "Add",
+                                        modifier = Modifier.size(66.dp)
+                                    )
                                 }
 
                                 "reparaturen" -> LargeFloatingActionButton(
@@ -254,7 +269,11 @@ class MainActivity : ComponentActivity() {
 
                                         navController.navigate("reparatureingabe")
                                     }) {
-                                    Icon(Icons.Default.Add, contentDescription = "Add", modifier = Modifier.size(66.dp))
+                                    Icon(
+                                        Icons.Default.Add,
+                                        contentDescription = "Add",
+                                        modifier = Modifier.size(66.dp)
+                                    )
                                 }
                             }
 
@@ -284,7 +303,7 @@ class MainActivity : ComponentActivity() {
                                     kategorieViewModel = kategorieViewModel,
                                     navController = navController,
                                     kategorieChanges = kategorieChanges,
-                                    kategorieliste= kategorieliste
+                                    kategorieliste = kategorieliste
                                 )
                             }
 
@@ -324,7 +343,7 @@ class MainActivity : ComponentActivity() {
 
                             composable("auftrag") {
                                 AuftragScreen(
-                                    navController= navController,
+                                    navController = navController,
                                     reparaturChanges = reparaturChanges,
                                     kundeViewModel = kundeViewModel
                                 )
