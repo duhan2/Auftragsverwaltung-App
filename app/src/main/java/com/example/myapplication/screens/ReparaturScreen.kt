@@ -1,9 +1,8 @@
 package com.example.myapplication.screens
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -18,10 +17,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.myapplication.kategorie.Kategorie
 import com.example.myapplication.kategorie.KategorieChanges
@@ -43,18 +40,18 @@ fun ReparaturScreen(
 
     //Eventuell Alühabetisch sortieren
     LazyColumn(
-        modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        modifier = Modifier
+            .fillMaxWidth(),
     ) {
         kategorieliste.value.forEach {
 
             stickyHeader {
                 Text(
+                    modifier = Modifier.padding(8.dp),
                     text = it.kategorie_name,
-                    fontSize = 20.sp,
+                    style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.background
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
 
@@ -64,6 +61,7 @@ fun ReparaturScreen(
 
                 Row(verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
+                        .background(MaterialTheme.colorScheme.surfaceContainer)
                         .combinedClickable(
                             onClick = {
                                 kategorieChanges.kategoriename = item.reparatur_kategorie
@@ -81,13 +79,15 @@ fun ReparaturScreen(
                 ) {
                     Text(
                         text = item.reparatur_name,
+                        style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.weight(3f),
-                        color = MaterialTheme.colorScheme.background
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
                         text = "%.2f".format(item.reparatur_preis) + "€",
+                        style = MaterialTheme.typography.bodyLarge,
                         modifier = Modifier.weight(1f),
-                        color = MaterialTheme.colorScheme.background
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     when {
                         openAlertDialog.value -> {
@@ -118,7 +118,10 @@ fun ReparaturScreen(
                     }
 
                 }
-                HorizontalDivider(thickness = 1.dp, color = Color.DarkGray)
+                HorizontalDivider(
+                    thickness = 1.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant
+                )
             }
 
 

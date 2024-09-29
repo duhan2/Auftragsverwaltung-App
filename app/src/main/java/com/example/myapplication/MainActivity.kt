@@ -1,5 +1,13 @@
 package com.example.myapplication
 
+//noinspection UsingMaterialAndMaterial3Libraries
+//noinspection UsingMaterialAndMaterial3Libraries
+//noinspection UsingMaterialAndMaterial3Libraries
+//noinspection UsingMaterialAndMaterial3Libraries
+//noinspection UsingMaterialAndMaterial3Libraries
+//noinspection UsingMaterialAndMaterial3Libraries
+//noinspection UsingMaterialAndMaterial3Libraries
+//noinspection UsingMaterialAndMaterial3Libraries
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -8,12 +16,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.BottomNavigation
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.BottomNavigationItem
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.IconButton
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Home
@@ -36,6 +49,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.compose.AppTheme
+import com.example.myapplication.archiv.ArchivChanges
 import com.example.myapplication.archiv.ArchivDatabase
 import com.example.myapplication.archiv.ArchivRepository
 import com.example.myapplication.archiv.ArchivViewModel
@@ -50,11 +64,14 @@ import com.example.myapplication.kunde.KundeRepository
 import com.example.myapplication.kunde.KundeViewModel
 import com.example.myapplication.kunde.KundeViewModelFactory
 import com.example.myapplication.reparatur.ReparaturChanges
+import com.example.myapplication.screens.ArchivAnsichtScreen
+import com.example.myapplication.screens.ArchivScreen
 import com.example.myapplication.screens.AuftragScreen
 import com.example.myapplication.screens.AuswahlScreen
 import com.example.myapplication.screens.Editscreen
 import com.example.myapplication.screens.Homescreen
 import com.example.myapplication.screens.KategorieEingabeScreen
+import com.example.myapplication.screens.KundenAnsichtScreen
 import com.example.myapplication.screens.ReparaturEingabeScreen
 import com.example.myapplication.screens.ReparaturScreen
 
@@ -69,8 +86,7 @@ class MainActivity : ComponentActivity() {
 
     private val kategorieViewModel: KategorieViewModel by lazy {
         ViewModelProvider(
-            this,
-            KategorieViewModelFactory(
+            this, KategorieViewModelFactory(
                 KategorieRepository(
                     KategorieDatabase.getDatabase(this).kategorieDao()
                 )
@@ -85,10 +101,12 @@ class MainActivity : ComponentActivity() {
         )[ArchivViewModel::class.java]
     }
 
-    //Kein wirkliches ViewModel:D
+    //Klasse die Daten für die Screenlogik hält
     private var reparaturChanges = ReparaturChanges()
 
     private var kategorieChanges = KategorieChanges()
+
+    private var archivChanges = ArchivChanges()
 
     @RequiresApi(34)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -99,7 +117,8 @@ class MainActivity : ComponentActivity() {
             AppTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(
-                    modifier = Modifier.fillMaxSize(),// color = Color.White
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.surface
                 ) {
 
                     val navController = rememberNavController()
@@ -107,91 +126,112 @@ class MainActivity : ComponentActivity() {
                     val navBackStackEntry by navController.currentBackStackEntryAsState()
                     val currentDestination = navBackStackEntry?.destination
 
+                    //Die Listen hier erschaffen, damit bei wechseln von Tab liste nicht immer neu erschaffen wird
                     val kundenliste = kundeViewModel.getallKunden().observeAsState(listOf())
                     val kategorieliste =
                         kategorieViewModel.getallKategorien().observeAsState(listOf())
+                    val archivliste = archivViewModel.getallArchiv().observeAsState(listOf())
 
-                    Scaffold(
-                        topBar = {
+                    Scaffold(topBar = {
 
-                            TopAppBar(
-                                backgroundColor = MaterialTheme.colorScheme.onSecondary,
-                                title = {
-                                    //Ändert angezeigten Titel in Toppbar
-                                    when (currentDestination?.route.toString()) {
-                                        "home" -> Text(
-                                            text = "Aufträge",
-                                            color = Color.White,
-                                            fontWeight = FontWeight.Bold
-                                        )
+                        TopAppBar(
+                            backgroundColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                            title = {
+                                //Ändert angezeigten Titel in Toppbar
+                                when (currentDestination?.route.toString()) {
+                                    "home" -> Text(
+                                        text = "Aufträge",
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold
+                                    )
 
-                                        "edit" -> Text(
-                                            text = "Auftrag Eingabe",
-                                            color = Color.White,
-                                            fontWeight = FontWeight.Bold
-                                        )
+                                    "edit" -> Text(
+                                        text = "Auftrag Eingabe",
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold
+                                    )
 
-                                        "reparaturen" -> Text(
-                                            text = "Reparaturen",
-                                            color = Color.White,
-                                            fontWeight = FontWeight.Bold
-                                        )
+                                    "reparaturen" -> Text(
+                                        text = "Reparaturen",
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold
+                                    )
 
-                                        "reparatureingabe" -> Text(
-                                            text = "Reparatureingabe",
-                                            color = Color.White,
-                                            fontWeight = FontWeight.Bold
-                                        )
+                                    "reparatureingabe" -> Text(
+                                        text = "Reparatureingabe",
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold
+                                    )
 
-                                        "kategorieeingabe" -> Text(
-                                            text = "Kategorieeingabe",
-                                            color = Color.White,
-                                            fontWeight = FontWeight.Bold
-                                        )
+                                    "kategorieeingabe" -> Text(
+                                        text = "Kategorieeingabe",
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold
+                                    )
 
-                                        "auswahl" -> Text(
-                                            text = "Reparatur Warenkorb",
-                                            color = Color.White,
-                                            fontWeight = FontWeight.Bold
-                                        )
+                                    "auswahl" -> Text(
+                                        text = "Reparatur Warenkorb",
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold
+                                    )
 
-                                        "auftrag" -> Text(
-                                            text = "Auftrag ansehen",
-                                            color = Color.White,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                    }
+                                    "auftrag" -> Text(
+                                        text = "Auftrag ansehen",
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold
+                                    )
 
-                                },
-                                navigationIcon = {
+                                    "archiv" -> Text(
+                                        text = "Kunden",
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold
+                                    )
 
-                                    if (currentDestination?.route.toString() != "home") {
-                                        IconButton(
-                                            onClick = {
-                                                //Wenn kein zuletzt Besuchter Screen, dann zurück zu home
-                                                if (!navController.popBackStack()) {
-                                                    //Eventuell ViewModel zurücksetzen
-                                                    navController.navigate("home")
-                                                }
-                                            }) {
-                                            Icon(
-                                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                                contentDescription = "Backbutton in Editmenu"
-                                            )
-                                        }
-                                    }
+                                    "archivansicht" -> Text(
+                                        text = "Archivierter Auftrag",
+                                        color = Color.White,
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold
+                                    )
                                 }
 
-                            )
-                        },
+                            },
+                            navigationIcon = {
+
+                                if (currentDestination?.route.toString() != "home") {
+                                    IconButton(onClick = {
+                                        //Wenn kein zuletzt Besuchter Screen, dann zurück zu home
+                                        if (!navController.popBackStack()) {
+                                            //Eventuell ViewModel zurücksetzen
+                                            navController.navigate("home")
+                                        }
+                                    }) {
+                                        Icon(
+                                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                            contentDescription = "Backbutton in Editmenu"
+                                        )
+                                    }
+                                }
+                            }
+
+                        )
+                    },
 
 
                         bottomBar = {
                             BottomNavigation(
-                                backgroundColor = MaterialTheme.colorScheme.onSecondary
+                                backgroundColor = MaterialTheme.colorScheme.surfaceContainer
                             ) {
-                                BottomNavigationItem(
-                                    label = { Text("Aufträge") },
+                                BottomNavigationItem(label = { Text("Aufträge") },
                                     selected = currentDestination?.hierarchy?.any { it.route == "home" } == true,
                                     onClick = {
                                         navController.navigate("home") {
@@ -212,12 +252,38 @@ class MainActivity : ComponentActivity() {
                                     icon = {
                                         Icon(
                                             Icons.Filled.Home,
-                                            contentDescription = null
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                     })
 
-                                BottomNavigationItem(
-                                    label = { Text("Reparaturen") },
+                                BottomNavigationItem(label = { Text("Kunden") },
+                                    selected = currentDestination?.hierarchy?.any { it.route == "archiv" } == true,
+                                    onClick = {
+                                        navController.navigate("archiv") {
+                                            // Pop up to the start destination of the graph to
+                                            // avoid building up a large stack of destinations
+                                            // on the back stack as users select items
+                                            //eventuell probleme
+                                            popUpTo("archiv") {
+                                                saveState = false
+                                            }
+                                            // Avoid multiple copies of the same destination when
+                                            // reselecting the same item
+                                            launchSingleTop = true
+                                            // Restore state when reselecting a previously selected item
+                                            restoreState = true
+                                        }
+                                    },
+                                    icon = {
+                                        Icon(
+                                            Icons.Filled.AccountBox,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    })
+
+                                BottomNavigationItem(label = { Text("Reparaturen") },
                                     selected = currentDestination?.hierarchy?.any { it.route == "reparaturen" } == true,
                                     onClick = {
                                         navController.navigate("reparaturen") {
@@ -238,22 +304,28 @@ class MainActivity : ComponentActivity() {
                                     icon = {
                                         Icon(
                                             Icons.Filled.Build,
-                                            contentDescription = null
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                     })
 
                             }
-                        },
-                        floatingActionButton = {
+                        }, floatingActionButton = {
 
                             when (currentDestination?.route.toString()) {
-                                "home" -> LargeFloatingActionButton(shape = CircleShape, onClick = {
+                                "home" -> LargeFloatingActionButton(
+                                    shape = CircleShape,
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    onClick = {
 
-                                    //Edit Screen nicht prepopulaten
-                                    reparaturChanges.resetchanges()
+                                        //Edit Screen nicht prepopulaten
+                                        reparaturChanges.resetchanges()
+                                        reparaturChanges.editparam = "new"
 
-                                    navController.navigate("edit")
-                                }) {
+                                        navController.navigate("edit")
+
+                                    }) {
                                     Icon(
                                         Icons.Default.Add,
                                         contentDescription = "Add",
@@ -261,8 +333,9 @@ class MainActivity : ComponentActivity() {
                                     )
                                 }
 
-                                "reparaturen" -> LargeFloatingActionButton(
-                                    shape = CircleShape,
+                                "reparaturen" -> LargeFloatingActionButton(shape = CircleShape,
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                                     onClick = {
 
                                         kategorieChanges.resetchanges()
@@ -275,9 +348,10 @@ class MainActivity : ComponentActivity() {
                                         modifier = Modifier.size(66.dp)
                                     )
                                 }
+
                             }
 
-                        }, containerColor = MaterialTheme.colorScheme.onPrimaryContainer
+                        }, containerColor = MaterialTheme.colorScheme.surface
                     ) { innerPadding ->
                         //println(currentDestination?.route.toString())
 
@@ -311,7 +385,9 @@ class MainActivity : ComponentActivity() {
                                 Editscreen(
                                     kundeViewModel = kundeViewModel,
                                     navController = navController,
-                                    stagedReparaturChanges = reparaturChanges
+                                    archivliste = archivliste,
+                                    stagedReparaturChanges = reparaturChanges,
+                                    archivViewModel = archivViewModel
                                 )
 
                             }
@@ -345,7 +421,31 @@ class MainActivity : ComponentActivity() {
                                 AuftragScreen(
                                     navController = navController,
                                     reparaturChanges = reparaturChanges,
-                                    kundeViewModel = kundeViewModel
+                                    kundeViewModel = kundeViewModel,
+                                    archivViewModel = archivViewModel,
+                                    archivList = archivliste
+                                )
+                            }
+
+                            composable("archiv") {
+                                ArchivScreen(
+                                    navController = navController,
+                                    archivliste = archivliste,
+                                    archivChanges = archivChanges
+                                )
+                            }
+                            composable("archivansicht") {
+                                ArchivAnsichtScreen(
+                                    reparaturChanges = reparaturChanges
+                                )
+                            }
+
+                            composable("kundenansicht") {
+                                KundenAnsichtScreen(
+                                    navController = navController,
+                                    stagedReparaturChanges = reparaturChanges,
+                                    archivViewModel = archivViewModel,
+                                    archivChanges = archivChanges
                                 )
                             }
 

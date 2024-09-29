@@ -6,8 +6,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material3.Button
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -33,7 +34,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.myapplication.kategorie.Kategorie
 import com.example.myapplication.reparatur.Reparatur
@@ -66,156 +66,170 @@ fun AuswahlScreen(
         }
     }
 
-    LazyColumn(
-        modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
-    ) {
-        kategorieliste.value.forEach { kategorie ->
+    Box {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            //modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            kategorieliste.value.forEach { kategorie ->
 
-            stickyHeader {
-                Text(
-                    text = kategorie.kategorie_name,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.background
-                )
-            }
-
-            items(items = kategorie.reparaturliste, key = { item: Reparatur ->
-                // Return a stable + unique key for the item
-                item.id
-            }) { item ->
-
-                var expanded by remember {
-                    mutableStateOf(false)
+                stickyHeader {
+                    Text(
+                        text = kategorie.kategorie_name,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                 }
-                var amount by remember {
-                    mutableIntStateOf(0)
-                }
-                //Wenn die Liste prepopulated ist, dann ist amount = der Anzahl der Reparaturen
-                val check = reparaturen.find { it.id == item.id }
-                if (check != null) {
-                    amount = check.anzahl
-                }
-                Row(modifier = Modifier
-                    .clickable { expanded = !expanded }
-                    .fillMaxWidth()
-                    .padding(vertical = 15.dp)) {
 
-                    Column {
+                items(items = kategorie.reparaturliste, key = { item: Reparatur ->
+                    // Return a stable + unique key for the item
+                    item.id
+                }) { item ->
 
-                        Text(
-                            text = item.reparatur_name,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.background
-                        )
-                        if (expanded) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-
-                                Button(
+                    var expanded by remember {
+                        mutableStateOf(false)
+                    }
+                    var amount by remember {
+                        mutableIntStateOf(0)
+                    }
+                    //Wenn die Liste prepopulated ist, dann ist amount = der Anzahl der Reparaturen
+                    val check = reparaturen.find { it.id == item.id }
+                    if (check != null) {
+                        amount = check.anzahl
+                    }
+                    Row(modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { expanded = !expanded }
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(MaterialTheme.colorScheme.secondary)
+                                .padding(16.dp)
+                        ) {
+                            Text(
+                                text = item.reparatur_name,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onSecondary,
+                                style = MaterialTheme.typography.bodyLarge,
+                            )
+                            if (expanded) {
+                                Row(
                                     modifier = Modifier
-                                        //.weight(1f)
-                                        .padding(horizontal = 16.dp),
-                                    shape = RectangleShape,
-                                    onClick = {
-                                        when (amount) {
-                                            0 -> reparaturen.remove(item)
-                                            1 -> {
-                                                reparaturen.remove(item)
-                                                amount -= 1
-                                            }
+                                        .background(MaterialTheme.colorScheme.secondaryContainer),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
 
-                                            else -> {
-                                                amount -= 1
+                                    Button(
+                                        modifier = Modifier
+                                            //.weight(1f)
+                                            .padding(horizontal = 16.dp),
+                                        shape = RectangleShape,
+                                        onClick = {
+                                            when (amount) {
+                                                0 -> reparaturen.remove(item)
+                                                1 -> {
+                                                    reparaturen.remove(item)
+                                                    amount -= 1
+                                                }
 
-                                                var index = 0
-                                                reparaturen.forEach {
-                                                    if (it.id == item.id) {
+                                                else -> {
+                                                    amount -= 1
 
-                                                        reparaturen[index].anzahl = amount
+                                                    var index = 0
+                                                    reparaturen.forEach {
+                                                        if (it.id == item.id) {
 
+                                                            reparaturen[index].anzahl = amount
+
+                                                        }
+                                                        index += 1
                                                     }
-                                                    index += 1
+
                                                 }
 
                                             }
-
-                                        }
-                                    }) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Clear,
-                                        contentDescription = "",
-                                        tint = Color.Red
-                                    )
-                                }
-                                Box(
-                                    modifier = Modifier
-                                        .background(color = Color.White)
-                                        //.weight(1f)
-                                        .padding(horizontal = 32.dp, vertical = 6.dp)
-                                ) {
+                                        }) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.Clear,
+                                            contentDescription = "",
+                                            tint = Color.Red
+                                        )
+                                    }
                                     Text(
                                         text = amount.toString(),
-                                        color = MaterialTheme.colorScheme.background,
-                                        modifier = Modifier.align(Alignment.Center)
+                                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                        modifier = Modifier.padding(horizontal = 8.dp)
                                     )
-                                }
-                                Button(
-                                    modifier = Modifier
-                                        //.weight(1f)
-                                        .padding(horizontal = 16.dp),
-                                    shape = RectangleShape,
-                                    onClick = {
-                                        when (amount) {
-                                            0 -> {
-                                                amount += 1
-                                                reparaturen.add(item.copy(anzahl = amount))
-                                            }
 
-                                            else -> {
-
-                                                amount += 1
-
-                                                var index = 0
-                                                reparaturen.forEach {
-                                                    if (it.id == item.id) {
-                                                        reparaturen[index].anzahl = amount
-                                                    }
-                                                    index += 1
+                                    Button(
+                                        modifier = Modifier
+                                            //.weight(1f)
+                                            .padding(horizontal = 16.dp),
+                                        shape = RectangleShape,
+                                        onClick = {
+                                            when (amount) {
+                                                0 -> {
+                                                    amount += 1
+                                                    reparaturen.add(item.copy(anzahl = amount))
                                                 }
 
-                                            }
-                                        }
+                                                else -> {
 
-                                    }) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.Add,
-                                        contentDescription = "",
-                                        tint = Color.Green
-                                    )
+                                                    amount += 1
+
+                                                    var index = 0
+                                                    reparaturen.forEach {
+                                                        if (it.id == item.id) {
+                                                            reparaturen[index].anzahl = amount
+                                                        }
+                                                        index += 1
+                                                    }
+
+                                                }
+                                            }
+
+                                        }) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.Add,
+                                            contentDescription = "",
+                                            tint = Color.Green
+                                        )
+                                    }
                                 }
                             }
+
                         }
-
                     }
+                    HorizontalDivider(
+                        thickness = 1.dp,
+                        color = MaterialTheme.colorScheme.outlineVariant
+                    )
                 }
-                HorizontalDivider(thickness = 1.dp, color = Color.DarkGray)
-            }
 
-        }
-        item {
-            Box(modifier = Modifier.fillMaxWidth()) {
-                Button(modifier = Modifier.align(Alignment.CenterEnd), onClick = {
-
-                    //Auswahlscreeninterne ReparaturenListe in das ViewModel setzen
-                    stagedReparaturChanges.gesamtreps = reparaturen
-
-                    navController.navigate("edit")
-                }) {
-                    Text(text = "Auswahl bestätigen")
-                }
             }
         }
+
+        FloatingActionButton(
+            modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+
+            onClick = {
+                //Auswahlscreeninterne ReparaturenListe in das ViewModel setzen
+                stagedReparaturChanges.gesamtreps = reparaturen
+
+                navController.navigate("edit")
+            }) {
+            Text(
+                modifier = Modifier.padding(horizontal = 8.dp),
+                text = "Auswahl bestätigen",
+                style = MaterialTheme.typography.titleMedium,
+            )
+        }
+
+
     }
 }

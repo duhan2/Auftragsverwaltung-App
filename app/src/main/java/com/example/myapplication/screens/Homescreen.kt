@@ -1,8 +1,10 @@
 package com.example.myapplication.screens
 
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
@@ -44,8 +46,6 @@ fun Homescreen(
     kundenliste: State<List<Kunde>>
 ) {
 
-    val uiScaleValue = 1.2
-
     LazyColumn(
         modifier = Modifier.fillMaxWidth(),
     ) {
@@ -53,38 +53,51 @@ fun Homescreen(
             item.id
         }) { item: Kunde ->
             val color = when (item.status) {
-                "abgeschlossen" -> MaterialTheme.colorScheme.outline
-                "eingegangen" -> MaterialTheme.colorScheme.onTertiaryContainer
+                "abgeschlossen" -> MaterialTheme.colorScheme.surfaceContainerLowest
+                "eingegangen" -> MaterialTheme.colorScheme.surfaceContainerHighest
                 //Sollte nie vorkommen
                 else -> Color.Green
             }
-            Row(
-                modifier = Modifier
-                    .clickable {
-                        stagedReparaturChanges.setfromKundeobj(item)
-                        navController.navigate("auftrag")
-                    }
-                    .background(color = color)
-                    .padding(horizontal = 8.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Row(modifier = Modifier
+                .clickable {
+                    stagedReparaturChanges.setfromKundeobj(item)
+                    navController.navigate("auftrag")
+                }
+                .background(color = color)
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = "" + item.id + " | " + item.name,
-                    fontSize = MaterialTheme.typography.bodyLarge.fontSize * uiScaleValue,
+                    text = "" + item.id,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.weight(2f),
-                    color = MaterialTheme.colorScheme.background
+                    modifier = Modifier.weight(1f),
+                    color = MaterialTheme.colorScheme.onSurface
                 )
+                Column(modifier = Modifier.weight(4f)) {
+                    Text(
+                        text = item.name,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        //modifier = Modifier.weight(1f),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Text(
+                        text = item.status,
+                        style = MaterialTheme.typography.bodyMedium,
+                        //fontWeight = FontWeight.Bold,
+                        //modifier = Modifier.weight(1f),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+
                 Kunde_EditButton(
-                    item,
-                    navController,
-                    stagedReparaturChanges = stagedReparaturChanges
+                    item, navController, stagedReparaturChanges = stagedReparaturChanges
                 )
                 Spacer(modifier = Modifier.size(5.dp))
                 Kunde_LoeschButton(item, kundeViewModel)
 
             }
-            HorizontalDivider(thickness = 1.dp, color = Color.DarkGray)
+            HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 
@@ -95,23 +108,26 @@ fun RowScope.Kunde_LoeschButton(kunde: Kunde, kundeViewModel: KundeViewModel) {
     //Normalerweise referenz übergeben, aber keine Ahnung wie das geht
     val openAlertDialog = remember { mutableStateOf(false) }
 
-    OutlinedButton(
-        modifier = Modifier.weight(1f),
-        colors = ButtonColors(Color.White, Color.Red, Color.DarkGray, Color.Gray),
+    OutlinedButton(modifier = Modifier.weight(2f),
+        colors = ButtonColors(
+            MaterialTheme.colorScheme.tertiaryContainer,
+            MaterialTheme.colorScheme.onTertiaryContainer,
+            Color.DarkGray,
+            Color.Gray
+        ),
         shape = CircleShape,
+        border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.outlineVariant),
         onClick = {
             openAlertDialog.value = true
         }) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(
-                modifier = Modifier.size(size = 36.dp),
+                modifier = Modifier.size(size = 24.dp),
                 imageVector = Icons.Outlined.Delete, contentDescription = "",
             )
             Text(
                 text = "Löschen",
-                fontSize = MaterialTheme.typography.bodyLarge.fontSize,
+                style = MaterialTheme.typography.labelMedium
             )
         }
         when {
@@ -135,34 +151,35 @@ fun RowScope.Kunde_LoeschButton(kunde: Kunde, kundeViewModel: KundeViewModel) {
 @RequiresApi(34)
 @Composable
 fun RowScope.Kunde_EditButton(
-    kunde: Kunde,
-    navController: NavController,
-    stagedReparaturChanges: ReparaturChanges
+    kunde: Kunde, navController: NavController, stagedReparaturChanges: ReparaturChanges
 ) {
 
     OutlinedButton(
         //ganz wichtig sonst schreibt der nicht nebeneinenader
-        modifier = Modifier.weight(1f),
-        colors = ButtonColors(Color.White, Color.Black, Color.DarkGray, Color.Gray),
+        modifier = Modifier.weight(2f),
+        colors = ButtonColors(
+            MaterialTheme.colorScheme.secondaryContainer,
+            MaterialTheme.colorScheme.onSecondaryContainer,
+            Color.DarkGray,
+            Color.Gray
+        ),
+        border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.outlineVariant),
         shape = CircleShape,
         onClick = {
             //Ausgewählten Kunden in StagedChanges speichern
             stagedReparaturChanges.setfromKundeobj(kunde)
+            stagedReparaturChanges.editparam = "edit"
             navController.navigate("edit")
 
         }) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Icon(
-                modifier = Modifier.size(size = 36.dp),
+                modifier = Modifier.size(size = 24.dp),
                 imageVector = Icons.Outlined.Edit,
                 contentDescription = "löschen"
             )
-            //Spacer(modifier = Modifier.width(width = 8.dp))
             Text(
-                text = "Bearbeiten",
-                fontSize = MaterialTheme.typography.bodyLarge.fontSize
+                text = "Bearbeiten", style = MaterialTheme.typography.labelMedium
             )
         }
     }

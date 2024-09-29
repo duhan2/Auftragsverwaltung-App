@@ -3,6 +3,8 @@ package com.example.myapplication.screens
 import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -21,13 +24,19 @@ import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateListOf
@@ -37,12 +46,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.example.myapplication.archiv.Archiv
+import com.example.myapplication.archiv.ArchivViewModel
 import com.example.myapplication.kunde.Kunde
 import com.example.myapplication.kunde.KundeViewModel
 import com.example.myapplication.reparatur.Reparatur
@@ -51,21 +65,26 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
+@OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnrememberedMutableState")
 @RequiresApi(34)
 @Composable
 fun Editscreen(
     kundeViewModel: KundeViewModel,
     navController: NavController,
-    stagedReparaturChanges: ReparaturChanges
+    archivliste: State<List<Archiv>>,
+    stagedReparaturChanges: ReparaturChanges,
+    archivViewModel: ArchivViewModel
 ) {
-    //TODO Bei Bildschirmdrehen wird Seite neu geladen, Bildschirm drehen blockieren
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, 8.dp)
-            .verticalScroll(rememberScrollState())
+            .verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
+
+        val openAlertDialog = remember { mutableStateOf(false) }
 
         val context = LocalContext.current
 
@@ -100,44 +119,123 @@ fun Editscreen(
         }
 
         //Zum debuggen
-        Text(
-            text = "Kunden-ID: $kundenid",
-            color = MaterialTheme.colorScheme.background,
-            fontWeight = FontWeight.Bold
-        )
-
-        var nameinput by remember { mutableStateOf("") }
-
-        //prepopulate nameinput
-        if (stagedReparaturChanges.nameinput != "") {
-            nameinput = stagedReparaturChanges.nameinput
+        Row(Modifier.fillMaxWidth()) {
+            Text(
+                text = "Kunden-ID: ",
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = "$kundenid",
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
         }
 
-        TextField(value = nameinput, onValueChange = {
-            nameinput = it
-            stagedReparaturChanges.nameinput = it
-        }, label = { Text("Name") })
 
-        Spacer(modifier = Modifier.size(30.dp))
+        var expanded by remember { mutableStateOf(false) }
 
+        var nameinput by remember {
+            mutableStateOf(
+                TextFieldValue(
+                    text = "", selection = TextRange(0)
+                )
+            )
+        }
+
+        //Wenn
+        if (stagedReparaturChanges.nameinput != "") {
+            nameinput = TextFieldValue(
+                text = stagedReparaturChanges.nameinput,
+                selection = TextRange(stagedReparaturChanges.nameinput.length)
+            )
+        }
         var numberinput by remember { mutableStateOf("") }
-        //Prepopulate numberinput
         if (stagedReparaturChanges.numberinput != "") {
             numberinput = stagedReparaturChanges.numberinput
         }
 
-        TextField(
-            value = numberinput,
-            onValueChange = {
-                numberinput = it
-                stagedReparaturChanges.numberinput = it
-            },
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            label = { Text(text = "Telefonnummer") }
-        )
+        var options by remember {
+            mutableStateOf(emptyList<Archiv>())
+        }
 
-        Spacer(modifier = Modifier.size(20.dp))
+        val localFocusManager = LocalFocusManager.current
+
+        ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = {
+            stagedReparaturChanges.archivid = -1
+            stagedReparaturChanges.nameinput = ""
+            nameinput = TextFieldValue(
+                text = "", selection = TextRange(0)
+            )
+        }) {
+            Row {
+                TextField(modifier = Modifier.menuAnchor(),
+                    value = nameinput,
+                    onValueChange = { textinput ->
+                        nameinput = textinput
+                        options = archivliste.value.filter {
+                            (nameinput.text != "") && (it.name.contains(
+                                nameinput.text, ignoreCase = true
+                            ))
+                        }
+                        expanded = nameinput.text.isNotBlank()
+                    },
+                    label = { Text("Name") },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text, imeAction = ImeAction.Done
+                    ),
+                    //Eventuell das Keyboard noch schliessen
+                    keyboardActions = KeyboardActions(onDone = {
+                        stagedReparaturChanges.nameinput = nameinput.text
+                        expanded = false
+                        localFocusManager.clearFocus()
+                    }),
+                    trailingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Search, contentDescription = "search"
+                        )
+                    }
+
+                )
+            }
+
+            ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                options.forEach {
+                    Row(
+                        modifier = Modifier
+                            .clickable(onClick = {
+                                nameinput = TextFieldValue(
+                                    text = it.name, selection = TextRange(it.name.length)
+                                )
+                                stagedReparaturChanges.nameinput = nameinput.text
+                                stagedReparaturChanges.numberinput = it.telNummer
+                                stagedReparaturChanges.archivid = it.id
+                                localFocusManager.clearFocus()
+                                expanded = false
+                            })
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                    ) {
+                        Text(text = it.name)
+                    }
+                }
+
+            }
+        }
+
+
+        TextField(value = numberinput, onValueChange = {
+            numberinput = it
+            stagedReparaturChanges.numberinput = it
+        }, singleLine = true, keyboardOptions = KeyboardOptions(
+            keyboardType = KeyboardType.Number, imeAction = ImeAction.Done
+        ), keyboardActions = KeyboardActions(onDone = {
+            stagedReparaturChanges.numberinput = numberinput
+            localFocusManager.clearFocus()
+        }), label = { Text(text = "Telefonnummer") })
+
 
         //prepopulate localDate
         val pattern = DateTimeFormatter.ofPattern("dd.MM.yyyy")
@@ -146,11 +244,20 @@ fun Editscreen(
             formattedDate = stagedReparaturChanges.eingangsdatum
         }
 
-        Text(
-            text = "Eingangsdatum $formattedDate",
-            color = MaterialTheme.colorScheme.background,
-            fontWeight = FontWeight.Bold
-        )
+        Row(Modifier.fillMaxWidth()) {
+            Text(
+                text = "Eingangsdatum: ",
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = formattedDate,
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+        }
 
         //Gesamtreps eine Kopie von StagedChanges
         //Liste von an Stagedchanges übergebenes Objekt einlesen
@@ -159,7 +266,6 @@ fun Editscreen(
             gesamtreps.add(it)
         }
 
-        Spacer(modifier = Modifier.size(20.dp))
 
         Button(onClick = {
             navController.navigate("auswahl")
@@ -172,37 +278,45 @@ fun Editscreen(
             Text(text = "Zum Auswahl Screen")
         }
 
-        Spacer(modifier = Modifier.size(20.dp))
-
         LazyColumn(
-            modifier = Modifier.height(300.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
+            modifier = Modifier.height(250.dp)
         ) {
             item {
                 Row(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.secondary)
                 ) {
                     Text(
                         text = "Bezeichnung",
-                        modifier = Modifier.weight(4f),
-                        fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.background
+                        modifier = Modifier
+                            .weight(4f)
+                            .padding(horizontal = 8.dp),
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSecondary,
+                        style = MaterialTheme.typography.titleSmall
                     )
                     Text(
                         text = "Anzahl",
                         modifier = Modifier.weight(2f),
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.background
+                        color = MaterialTheme.colorScheme.onSecondary,
+                        style = MaterialTheme.typography.titleSmall
                     )
                     Text(
                         text = "Einzelpreis",
                         modifier = Modifier.weight(2f),
-                        fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.background
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSecondary,
+                        style = MaterialTheme.typography.titleSmall
                     )
                     Text(
                         text = "Gesamtpreis",
                         modifier = Modifier.weight(2f),
-                        fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.background
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSecondary,
+                        style = MaterialTheme.typography.titleSmall
                     )
 
                 }
@@ -210,77 +324,100 @@ fun Editscreen(
             items(gesamtreps) {
                 if (it.reparatur_kategorie != "Extras") {
                     Row(
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.secondaryContainer)
                     ) {
                         //Bezeichnung
                         Text(
                             text = "${it.reparatur_kategorie} : ${it.reparatur_name}",
-                            modifier = Modifier.weight(4f),
-                            color = MaterialTheme.colorScheme.background
+                            modifier = Modifier
+                                .weight(4f)
+                                .padding(horizontal = 8.dp),
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            style = MaterialTheme.typography.bodyMedium
                         )
                         //Anzahl
                         Text(
                             text = "${it.anzahl}",
                             modifier = Modifier.weight(2f),
                             textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.background
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            style = MaterialTheme.typography.bodyMedium
                         )
                         //Einzelpreis
                         Text(
                             text = "${"%.2f".format(it.reparatur_preis)}€",
                             modifier = Modifier.weight(2f),
-                            color = MaterialTheme.colorScheme.background
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            style = MaterialTheme.typography.bodyMedium
                         )
                         //Gesamtpreis
                         Text(
                             text = "${"%.2f".format(it.reparatur_preis * it.anzahl)}€",
                             modifier = Modifier.weight(2f),
-                            color = MaterialTheme.colorScheme.background
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            style = MaterialTheme.typography.bodyMedium
                         )
                     }
+                    HorizontalDivider(
+                        thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant
+                    )
                 }
             }
 
             items(gesamtreps) {
                 if (it.reparatur_kategorie == "Extras") {
                     Row(
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.secondaryContainer)
                     ) {
                         //Bezeichnung
                         Text(
                             text = "${it.reparatur_kategorie} : ${it.reparatur_name}",
-                            modifier = Modifier.weight(4f),
-                            color = MaterialTheme.colorScheme.background
+                            modifier = Modifier
+                                .weight(4f)
+                                .padding(horizontal = 8.dp),
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            style = MaterialTheme.typography.bodyMedium
                         )
                         //Anzahl
                         Text(
                             text = "${it.anzahl}",
                             modifier = Modifier.weight(2f),
                             textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.background
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            style = MaterialTheme.typography.bodyMedium
                         )
                         //Einzelpreis
                         Text(
                             text = "${"%.2f".format(it.reparatur_preis)}€",
                             modifier = Modifier.weight(2f),
-                            color = MaterialTheme.colorScheme.background
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            style = MaterialTheme.typography.bodyMedium
                         )
                         //Gesamtpreis
                         Text(
                             text = "${"%.2f".format(it.reparatur_preis * it.anzahl)}€",
                             modifier = Modifier.weight(2f),
-                            color = MaterialTheme.colorScheme.background
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            style = MaterialTheme.typography.bodyMedium
                         )
                     }
+                    HorizontalDivider(
+                        thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant
+                    )
                 }
             }
 
         }
 
-        Spacer(modifier = Modifier.size(20.dp))
-
         Text(
-            text = "Extras: ", color = MaterialTheme.colorScheme.background
+            text = "Extras: ",
+            color = MaterialTheme.colorScheme.onSurface,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
         )
 
         var extrastext by remember { mutableStateOf("") }
@@ -293,8 +430,10 @@ fun Editscreen(
                     extrastext = it
                 },
                 label = { Text("Extras") },
-                textStyle = TextStyle(color = MaterialTheme.colorScheme.background),
-                modifier = Modifier.weight(2f)
+                modifier = Modifier.weight(2f),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text, imeAction = ImeAction.Done
+                )
             )
             OutlinedTextField(
                 value = extrasnum,
@@ -302,11 +441,13 @@ fun Editscreen(
                     extrasnum = it
                 },
                 singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number, imeAction = ImeAction.Done
+                ),
                 label = { Text(text = "Aufpreis") },
                 modifier = Modifier.weight(1f),
-                textStyle = TextStyle(color = MaterialTheme.colorScheme.background),
-            )
+
+                )
             Spacer(modifier = Modifier.size(1.dp))
             Button(onClick = {
                 if ((extrastext != "") && (extrasnum.toFloatOrNull() != null)) {
@@ -328,27 +469,34 @@ fun Editscreen(
         }
 
         LazyColumn(
-            modifier = Modifier.height(100.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
+            modifier = Modifier.height(100.dp)
         ) {
             items(gesamtreps) {
                 if (it.reparatur_kategorie == "Extras") {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.secondaryContainer),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         //Bezeichnung
                         Text(
                             text = it.reparatur_name,
-                            modifier = Modifier.weight(2f),
-                            color = MaterialTheme.colorScheme.background
+                            modifier = Modifier
+                                .weight(2f)
+                                .padding(horizontal = 8.dp),
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            style = MaterialTheme.typography.bodyMedium
                         )
                         //Einzelpreis
                         Text(
                             text = "${"%.2f".format(it.reparatur_preis)}€",
                             modifier = Modifier.weight(1f),
-                            color = MaterialTheme.colorScheme.background
+                            color = MaterialTheme.colorScheme.onSecondaryContainer,
+                            style = MaterialTheme.typography.bodyMedium
                         )
+
+
                         //Edit
                         Button(onClick = {
                             extrastext = it.reparatur_name
@@ -367,13 +515,14 @@ fun Editscreen(
                             Icon(imageVector = Icons.Filled.Clear, contentDescription = "weg")
                         }
 
-
                     }
+                    HorizontalDivider(
+                        thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant
+                    )
                 }
             }
         }
 
-        Spacer(modifier = Modifier.size(10.dp))
         //Gesamtpreis aufaddieren
         var gesamtpreis = 0.0F
         gesamtreps.forEach { rep -> gesamtpreis += (rep.reparatur_preis * rep.anzahl) }
@@ -390,58 +539,86 @@ fun Editscreen(
                 stagedReparaturChanges.extrasachen = it
             },
             label = { Text("Notizen") },
-            textStyle = TextStyle(color = MaterialTheme.colorScheme.background)
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text, imeAction = ImeAction.Done
+            )
         )
 
-        Spacer(modifier = Modifier.size(10.dp))
-
         var status = "eingegangen"
-        if (stagedReparaturChanges.auftragsstatus == "abgeschlossen"){
+        if (stagedReparaturChanges.auftragsstatus == "abgeschlossen") {
             status = "abgeschlossen"
         }
 
         Button(modifier = Modifier.align(Alignment.CenterHorizontally), onClick = {
 
-            if (nameinput != "") {
+            if (nameinput.text != "") {
                 if (numberinput != "") {
                     if (gesamtreps.isNotEmpty()) {
-                        //Wegen OnConflictStrategy.REPLACE sollte das hier bei gleicher ID den Kunden ersetzen
-                        kundeViewModel.insert(
-                            Kunde(
-                                id = kundenid,
-                                name = nameinput,
-                                gesPreis = gesamtpreis,
-                                telNummer = numberinput,
-                                status = status,
-                                reparaturliste = gesamtreps,
-                                extras = notiztext,
-                                eingansdatum = formattedDate
+                        if (stagedReparaturChanges.archivid != -1) {
+                            val temp =
+                                archivliste.value.firstOrNull { it.id == stagedReparaturChanges.archivid }
+                            if (temp != null) {
+
+                                if (temp.telNummer != numberinput) {
+                                    openAlertDialog.value = true
+                                } else {
+                                    kundeViewModel.insert(
+                                        Kunde(
+                                            id = kundenid,
+                                            name = nameinput.text,
+                                            gesPreis = gesamtpreis,
+                                            telNummer = numberinput,
+                                            status = status,
+                                            reparaturliste = gesamtreps,
+                                            extras = notiztext,
+                                            eingansdatum = formattedDate,
+                                            archivid = stagedReparaturChanges.archivid
+                                        )
+                                    )
+
+                                    stagedReparaturChanges.resetchanges()
+                                    navController.navigate("home")
+                                }
+                            } else {
+                                val toast = Toast.makeText(
+                                    context, "Kunden nicht im Archiv gefunden", Toast.LENGTH_SHORT
+                                ) // in Activity
+                                toast.show()
+                            }
+                        } else {                        //Wegen OnConflictStrategy.REPLACE sollte das hier bei gleicher ID den Kunden ersetzen
+                            kundeViewModel.insert(
+                                Kunde(
+                                    id = kundenid,
+                                    name = nameinput.text,
+                                    gesPreis = gesamtpreis,
+                                    telNummer = numberinput,
+                                    status = status,
+                                    reparaturliste = gesamtreps,
+                                    extras = notiztext,
+                                    eingansdatum = formattedDate,
+                                    archivid = stagedReparaturChanges.archivid
+                                )
                             )
-                        )
-                        //Keine Changes staged
-                        stagedReparaturChanges.resetchanges()
-                        navController.navigate("home")
+
+                            stagedReparaturChanges.resetchanges()
+                            navController.navigate("home")
+                        }
+
                     } else {
                         val toast = Toast.makeText(
-                            context,
-                            "Bitte Reparaturen auswählen",
-                            Toast.LENGTH_SHORT
+                            context, "Bitte Reparaturen auswählen", Toast.LENGTH_SHORT
                         ) // in Activity
                         toast.show()
                     }
                 } else {
                     val toast = Toast.makeText(
-                        context,
-                        "Bitte Nummer eingeben",
-                        Toast.LENGTH_SHORT
+                        context, "Bitte Nummer eingeben", Toast.LENGTH_SHORT
                     ) // in Activity
                     toast.show()
                 }
             } else {
                 val toast = Toast.makeText(
-                    context,
-                    "Bitte Name eingeben",
-                    Toast.LENGTH_SHORT
+                    context, "Bitte Name eingeben", Toast.LENGTH_SHORT
                 ) // in Activity
                 toast.show()
             }
@@ -455,5 +632,63 @@ fun Editscreen(
             Text(text = "Auftrag Hinzufügen")
         }
 
+        if (openAlertDialog.value) {
+            androidx.compose.material3.AlertDialog(
+                containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                textContentColor = MaterialTheme.colorScheme.onSurface,
+                titleContentColor = MaterialTheme.colorScheme.onSurface,
+                title = {
+                    Text(
+                        text = "Neue Nummer erkannt"
+                    )
+                },
+                text = { Text(text = "Soll die Nummer für ${nameinput.text} aktualisiert werden") },
+                onDismissRequest = { openAlertDialog.value = false },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            val temp =
+                                archivliste.value.firstOrNull { it.id == stagedReparaturChanges.archivid }
+                            if (temp != null) {
+                                temp.telNummer = numberinput
+                                archivViewModel.update(temp)
+                            }
+
+                            kundeViewModel.insert(
+                                Kunde(
+                                    id = kundenid,
+                                    name = nameinput.text,
+                                    gesPreis = gesamtpreis,
+                                    telNummer = numberinput,
+                                    status = status,
+                                    reparaturliste = gesamtreps,
+                                    extras = notiztext,
+                                    eingansdatum = formattedDate,
+                                    archivid = stagedReparaturChanges.archivid
+                                )
+                            )
+
+                            stagedReparaturChanges.resetchanges()
+                            openAlertDialog.value = false
+                            navController.navigate("home")
+
+                        }
+                    ) {
+                        Text("Bestätigen")
+                    }
+                }, dismissButton = {
+                    TextButton(
+                        onClick = {
+                            openAlertDialog.value = false
+                        }
+                    ) {
+                        Text("Abbrechen")
+                    }
+                }
+            )
+
+        }
+
     }
+
 }

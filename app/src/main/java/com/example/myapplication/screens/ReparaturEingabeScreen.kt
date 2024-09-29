@@ -40,6 +40,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.compose.runtime.remember
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.sp
 import com.example.myapplication.kategorie.Kategorie
 import com.example.myapplication.kategorie.KategorieChanges
@@ -86,8 +87,7 @@ fun ReparaturEingabeScreen(
             reparaturID = kategorieChanges.repid
             replace = true
             //kategorieChanges.resetrepid()
-        }
-        else{
+        } else {
             //println("HALO ICHBINHIER")
             reparaturID = when (val z = idListe.minByOrNull { it }) {
                 //Wenn Liste leer ID = 1
@@ -101,8 +101,8 @@ fun ReparaturEingabeScreen(
 
         var expanded by remember { mutableStateOf(false) }
 
-        //var selectedOptionText by remember { mutableStateOf("noch leer") }
         var selectedOptionText by remember { mutableStateOf("noch leer") }
+
         //Wenn eine Kategorie bereits in Changes, dann das als Selectedoptiontext
         if (kategorieChanges.kategoriename != "leer") {
             selectedOptionText = kategorieChanges.kategoriename
@@ -211,7 +211,11 @@ fun ReparaturEingabeScreen(
             label = { Text("Reparaturenname") },
             singleLine = true,
             value = repname,
-            onValueChange = { repname = it }
+            onValueChange = { repname = it },
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Done
+            )
         )
 
         Spacer(modifier = Modifier.size(100.dp))
@@ -238,13 +242,16 @@ fun ReparaturEingabeScreen(
                     false
                 }
             },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Done
+            ),
         )
 
 
         Spacer(modifier = Modifier.size(130.dp))
 
-        Button(enabled = buttonenabler, shape = CircleShape ,onClick = {
+        Button(enabled = buttonenabler, shape = CircleShape, onClick = {
 
             if ((selectedOptionText == "Neue Katgeorie") || (selectedOptionText == "gelöscht") || (selectedOptionText == "leer")) {
                 Toast.makeText(context, "ungültige Kategorie", Toast.LENGTH_SHORT).show()
@@ -255,11 +262,11 @@ fun ReparaturEingabeScreen(
                     Toast.LENGTH_SHORT
                 ).show()
             } else {
-
+                //TODO Das hier kann man auf jeden Fall simpler lösen. Aber gerade keine Zeit
                 options.value.find { it.kategorie_name == selectedOptionText }?.let { it ->
                     //Wenn Element ersetzt werden soll
                     if (replace) {
-                        println("yesman")
+                        //println("yesman")
                         it.reparaturliste[it.reparaturliste.indexOf(it.reparaturliste.find { it.id == reparaturID })] =
                             Reparatur(
                                 reparaturID,
@@ -270,7 +277,7 @@ fun ReparaturEingabeScreen(
 
                     } else {
                         //add Methode macht keine Probleme. Ausser wenn es in Zukunft Probleme gibt, muss Liste geklont mit .toMutablelist() werden
-                        println("Reparaturid is: $reparaturID")
+                        //println("Reparaturid is: $reparaturID")
                         it.reparaturliste.add(
                             Reparatur(
                                 reparaturID,
@@ -293,7 +300,7 @@ fun ReparaturEingabeScreen(
                 navController.navigate("reparaturen")
             }
         }) {
-            Text(text = "Bestätigen", fontSize = 40.sp )
+            Text(text = "Bestätigen", fontSize = 40.sp)
         }
 
     }

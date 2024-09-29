@@ -4,6 +4,7 @@ import android.telephony.SmsManager
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,7 +17,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
@@ -24,20 +24,24 @@ import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.myapplication.archiv.Archiv
+import com.example.myapplication.archiv.ArchivViewModel
 import com.example.myapplication.kunde.KundeViewModel
 import com.example.myapplication.reparatur.ReparaturChanges
 
@@ -46,7 +50,9 @@ import com.example.myapplication.reparatur.ReparaturChanges
 fun AuftragScreen(
     navController: NavController,
     reparaturChanges: ReparaturChanges,
-    kundeViewModel: KundeViewModel
+    kundeViewModel: KundeViewModel,
+    archivViewModel: ArchivViewModel,
+    archivList: State<List<Archiv>>
 ) {
 
     //Daten werden vorher in Zwischenspeicher reparaturChanges gespeichert
@@ -67,20 +73,21 @@ fun AuftragScreen(
             .fillMaxSize()
             // on below line we are adding a padding.
             .padding(all = 30.dp),
-        //horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         item {
             Row {
                 Text(
                     text = "Kunden ID: ",
                     modifier = Modifier.weight(2f),
-                    fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.background
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = "${reparaturChanges.kundenid}",
                     modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.background
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
@@ -90,12 +97,14 @@ fun AuftragScreen(
                     text = "Name: ",
                     modifier = Modifier.weight(2f),
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.background
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = reparaturChanges.nameinput,
                     modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.background
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
@@ -104,12 +113,15 @@ fun AuftragScreen(
                 Text(
                     text = "Nummer: ",
                     modifier = Modifier.weight(2f),
-                    fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.background
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = reparaturChanges.numberinput,
                     modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.background
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
@@ -118,11 +130,15 @@ fun AuftragScreen(
                 Text(
                     text = "Eingangsdatum: ",
                     modifier = Modifier.weight(2f),
-                    fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.background
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = reparaturChanges.eingangsdatum,
-                    modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.background
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
@@ -133,91 +149,123 @@ fun AuftragScreen(
                 Text(
                     text = "Auftragsstatus: ",
                     modifier = Modifier.weight(2f),
-                    fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.background
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = status,
                     modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.background
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
         item {
-            HorizontalDivider(thickness = 1.dp, color = Color.DarkGray)
-            Spacer(modifier = Modifier.height(20.dp))
+            HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         item {
             Row(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
             ) {
                 Text(
                     text = "Bezeichnung",
                     modifier = Modifier.weight(4f),
-                    fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.background
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = "Anzahl",
                     modifier = Modifier.weight(2f),
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.background
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = "Einzelpreis",
                     modifier = Modifier.weight(2f),
-                    fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.background
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = "Gesamtpreis",
                     modifier = Modifier.weight(2f),
-                    fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.background
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
         items(reparaturChanges.gesamtreps) {
             if (it.reparatur_kategorie != "Extras") {
                 Row(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                        .padding(horizontal = 16.dp, vertical = 2.dp),
                 ) {
                     //Bezeichnung
                     Text(
                         text = "${it.reparatur_kategorie} : ${it.reparatur_name}",
-                        modifier = Modifier.weight(4f), color = MaterialTheme.colorScheme.background
+                        modifier = Modifier.weight(4f),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     //Anzahl
                     Text(
                         text = "${it.anzahl}",
                         modifier = Modifier.weight(2f),
                         textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.background
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     //Einzelpreis
                     Text(
                         text = "${"%.2f".format(it.reparatur_preis)}€",
                         modifier = Modifier.weight(2f),
-                        color = MaterialTheme.colorScheme.background
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     //Gesamtpreis
                     Text(
                         text = "${"%.2f".format(it.reparatur_preis * it.anzahl)}€",
-                        modifier = Modifier.weight(2f), color = MaterialTheme.colorScheme.background
+                        modifier = Modifier.weight(2f),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
-                HorizontalDivider(thickness = 1.dp, color = Color.Gray)
+                HorizontalDivider(
+                    thickness = 1.dp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
 
         item {
-            Row {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surfaceContainerLowest)
+                    .padding(horizontal = 16.dp)
+            ) {
                 Text(
                     text = "Extras: ",
-                    fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.background,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.weight(2f)
                 )
                 Text(
                     text = "Aufpreis: ",
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.background,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.weight(1f)
                 )
 
@@ -227,18 +275,24 @@ fun AuftragScreen(
         items(reparaturChanges.gesamtreps) {
             if (it.reparatur_kategorie == "Extras") {
                 Row(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.surfaceContainerLowest)
+                        .padding(horizontal = 16.dp)
                 ) {
                     //Bezeichnung
                     Text(
                         text = it.reparatur_name,
-                        modifier = Modifier.weight(2f), color = MaterialTheme.colorScheme.background
+                        modifier = Modifier.weight(2f),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     //Einzelpreis
                     Text(
                         text = "${"%.2f".format(it.reparatur_preis)}€",
                         modifier = Modifier.weight(1f),
-                        color = MaterialTheme.colorScheme.background
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
                 }
@@ -254,7 +308,9 @@ fun AuftragScreen(
                 text = "Summe = ${"%.2f".format(reparaturChanges.gesamtpreis)}€",
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.End,
-                fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.background
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
 
@@ -266,12 +322,14 @@ fun AuftragScreen(
         item {
             Text(
                 text = "Notiz: ",
-                color = MaterialTheme.colorScheme.background,
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
             Text(
                 text = reparaturChanges.extrasachen,
-                color = MaterialTheme.colorScheme.background
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.bodyMedium,
             )
         }
 
@@ -283,12 +341,16 @@ fun AuftragScreen(
             var openAlertDialog1 by remember { mutableStateOf(false) }
             var openAlertDialog2 by remember { mutableStateOf(false) }
 
-            Row {
+            Row(verticalAlignment = Alignment.CenterVertically) {
 
-                Button(
-                    modifier = Modifier.weight(1f),
-                    shape = CutCornerShape(10),
-                    border = BorderStroke(1.dp, Color.Black),
+                OutlinedButton(modifier = Modifier.weight(2f),
+                    colors = ButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                        disabledContentColor = Color.Gray,
+                        disabledContainerColor = Color.DarkGray
+                    ),
+                    border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.outline),
                     onClick = {
                         if (reparaturChanges.numberinput.startsWith("02151")) {
                             Toast.makeText(
@@ -300,15 +362,11 @@ fun AuftragScreen(
                             if (reparaturChanges.auftragsstatus == "eingegangen") {
                                 //Altert Dialog öffnen
                                 message =
-                                    "Hallo Herr/Frau " + reparaturChanges.nameinput + ",\nIhr Fahrrad ist zur Reparatur eingegangen." +
-                                            "\n\nMit freundlichen Grüßen\n" +
-                                            "Fahrradwelt Fischeln"
+                                    "Hallo Herr/Frau " + reparaturChanges.nameinput + ",\nIhr Fahrrad ist zur Reparatur eingegangen." + "\n\nMit freundlichen Grüßen\n" + "Fahrradwelt Fischeln"
                                 openAlertDialog1 = true
                             } else {
                                 Toast.makeText(
-                                    context,
-                                    "Auftrag bereits abgeschlossen",
-                                    Toast.LENGTH_LONG
+                                    context, "Auftrag bereits abgeschlossen", Toast.LENGTH_LONG
                                 ).show()
                             }
                         }
@@ -318,9 +376,8 @@ fun AuftragScreen(
                         // on below line adding a text ,
                         // padding, color and font size.
                         text = "Eingangsbestätigung senden",
-                        modifier = Modifier.padding(10.dp),
-                        color = Color.White,
-                        fontSize = 15.sp
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.titleLarge, textAlign = TextAlign.Center
                     )
                     when {
                         openAlertDialog1 -> {
@@ -335,16 +392,10 @@ fun AuftragScreen(
                                         // on below line sending sms
                                         val parts = smsManager.divideMessage(message)
                                         smsManager.sendMultipartTextMessage(
-                                            phoneNumber,
-                                            null,
-                                            parts,
-                                            null,
-                                            null
+                                            phoneNumber, null, parts, null, null
                                         )
                                         Toast.makeText(
-                                            context,
-                                            "Message Sent",
-                                            Toast.LENGTH_LONG
+                                            context, "Message Sent", Toast.LENGTH_LONG
                                         ).show()
                                         openAlertDialog1 = false
 
@@ -352,9 +403,7 @@ fun AuftragScreen(
                                         // on below line handling error and
                                         // displaying toast message.
                                         Toast.makeText(
-                                            context,
-                                            "Error : " + e.message,
-                                            Toast.LENGTH_LONG
+                                            context, "Error : " + e.message, Toast.LENGTH_LONG
                                         ).show()
                                     }
                                 },
@@ -367,13 +416,20 @@ fun AuftragScreen(
 
                 //Divider(thickness = 1.dp, color = Color.DarkGray)
 
-                Spacer(modifier = Modifier.width(10.dp))
+                Spacer(modifier = Modifier
+                    .width(10.dp)
+                    .weight(1f))
 
                 // on below line adding a button to send SMS
-                Button(
-                    modifier = Modifier.weight(1f),
-                    shape = CutCornerShape(10),
-                    border = BorderStroke(1.dp, Color.Black),
+                OutlinedButton(
+                    modifier = Modifier.weight(2f),
+                    colors = ButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                        disabledContentColor = Color.Gray,
+                        disabledContainerColor = Color.DarkGray
+                    ),
+                    border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.outline),
                     onClick = {
                         //Hier kann man auch abfragen ob keine Nummer vorhanden ist, aber bis jetzt ist eine Nummer Pflicht
                         //Wenn Nummer mit Festnetznummer anfängt
@@ -391,16 +447,12 @@ fun AuftragScreen(
                                 message =
                                     "Hallo Herr/Frau " + reparaturChanges.nameinput + ",\nIhr Fahrrad ist abholbereit. Die Reparaturkosten betragen " + "%.2f".format(
                                         reparaturChanges.gesamtpreis
-                                    ) + " €. Bitte holen Sie Ihr Fahrrad, innerhalb unserer Öffnungszeiten ab" +
-                                            "\nMit freundlichen Grüßen,\n" +
-                                            "Fahrradwelt Fischeln"
+                                    ) + " €. Bitte holen Sie Ihr Fahrrad, innerhalb unserer Öffnungszeiten ab" + "\nMit freundlichen Grüßen,\n" + "Fahrradwelt Fischeln"
                                 //Altert Dialog öffnen
                                 openAlertDialog2 = true
                             } else {
                                 Toast.makeText(
-                                    context,
-                                    "Auftrag bereits abgeschlossen",
-                                    Toast.LENGTH_LONG
+                                    context, "Auftrag bereits abgeschlossen", Toast.LENGTH_LONG
                                 ).show()
                             }
                         }
@@ -410,9 +462,8 @@ fun AuftragScreen(
                         // on below line adding a text ,
                         // padding, color and font size.
                         text = "Auftrag abschließen",
-                        modifier = Modifier.padding(10.dp),
-                        color = Color.White,
-                        fontSize = 15.sp
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.titleLarge
                     )
                     when {
                         openAlertDialog2 -> {
@@ -426,31 +477,56 @@ fun AuftragScreen(
                                         // on below line sending sms
                                         val parts = smsManager.divideMessage(message)
                                         smsManager.sendMultipartTextMessage(
-                                            phoneNumber,
-                                            null,
-                                            parts,
-                                            null,
-                                            null
+                                            phoneNumber, null, parts, null, null
                                         )
                                         // on below line displaying
                                         // toast message as sms send.
                                         Toast.makeText(
-                                            context,
-                                            "Message Sent",
-                                            Toast.LENGTH_LONG
+                                            context, "Message Sent", Toast.LENGTH_LONG
                                         ).show()
                                         openAlertDialog2 = false
                                         reparaturChanges.auftragsstatus = "abgeschlossen"
                                         status = "abgeschlossen"
                                         kundeViewModel.update(reparaturChanges.createKundenobj())
+
+                                        //Wenn Archiveintrag besteht
+                                        if (reparaturChanges.archivid != -1) {
+                                            val temp =
+                                                archivList.value.find { it.id == reparaturChanges.archivid }
+                                            if (temp != null) {
+                                                //setz den neuen Auftrag in die Liste und aktualisiere das Archiv
+                                                temp.auftragsliste.add(reparaturChanges.createKundenobj())
+                                                archivViewModel.update(temp)
+                                            }
+
+                                        }
+                                        //Wenn der Eintrag noch nicht besteht
+                                        else {
+                                            //Erschaffe nächstgroße ID
+                                            val temp = archivList.value.maxByOrNull { it.id }
+                                            var archivid = 1
+                                            if (temp != null) {
+                                                archivid = temp.id + 1
+                                            }
+                                            //Erschaffe folgenden Archiveintrag mit diesem Auftrag zur Liste hinzugefügt
+                                            archivViewModel.insert(
+                                                Archiv(
+                                                    archivid,
+                                                    reparaturChanges.nameinput,
+                                                    reparaturChanges.numberinput,
+                                                    mutableListOf(reparaturChanges.createKundenobj())
+                                                )
+                                            )
+
+                                        }
+
+
                                         //navController.navigate("home")
                                     } catch (e: Exception) {
                                         // on below line handling error and
                                         // displaying toast message.
                                         Toast.makeText(
-                                            context,
-                                            "Error : " + e.message,
-                                            Toast.LENGTH_LONG
+                                            context, "Error : " + e.message, Toast.LENGTH_LONG
                                         ).show()
                                     }
                                 },
@@ -468,8 +544,7 @@ fun AuftragScreen(
             Spacer(modifier = Modifier.size(100.dp))
             var openAlertDialog3 by remember { mutableStateOf(false) }
             Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
+                modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center
             ) {
                 Button(
                     onClick = {
@@ -486,17 +561,16 @@ fun AuftragScreen(
                 }
             }
             when {
-                openAlertDialog3 ->
-                    AlertDialog(
-                        onDismissRequest = { openAlertDialog3 = false },
-                        onConfirmation = {
-                            kundeViewModel.delete(reparaturChanges.createKundenobj())
-                            openAlertDialog3 = false
-                            navController.navigate("home")
-                        },
-                        dialogText = "Auftrag löschen und zum Aufträge-Screen zurückkehren.",
-                        dialogTitle = "Auftrag wirklich löschen ?"
-                    )
+                openAlertDialog3 -> AlertDialog(
+                    onDismissRequest = { openAlertDialog3 = false },
+                    onConfirmation = {
+                        kundeViewModel.delete(reparaturChanges.createKundenobj())
+                        openAlertDialog3 = false
+                        navController.navigate("home")
+                    },
+                    dialogText = "Auftrag löschen und zum Aufträge-Screen zurückkehren.",
+                    dialogTitle = "Auftrag wirklich löschen ?"
+                )
             }
         }
     }

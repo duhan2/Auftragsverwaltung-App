@@ -12,6 +12,8 @@ class ReparaturChanges {
     var gesamtpreis: Float = 0.00F
     var extrasachen: String = ""
     var eingangsdatum: String = ""
+    var archivid: Int = -1
+    var editparam: String = ""
 
     //eventuell macht das probleme
     var gesamtreps = mutableListOf<Reparatur>()
@@ -25,6 +27,7 @@ class ReparaturChanges {
         this.gesamtpreis = kunde.gesPreis
         this.extrasachen = kunde.extras
         this.eingangsdatum = kunde.eingansdatum
+        this.archivid = kunde.archivid
 
         //!Kann sein dass die Elemente kopiert werden müssen und nicht refrerenziert werden dürfen!
         this.gesamtreps = kunde.reparaturliste.toMutableList()
@@ -40,9 +43,10 @@ class ReparaturChanges {
             this.auftragsstatus,
             this.gesamtreps,
             this.extrasachen,
-            this.eingangsdatum
+            this.eingangsdatum,
+            this.archivid
         )
-    }//,this.aufpreis
+    }
 
     fun resetchanges() {
         this.kundenid = 0
@@ -52,5 +56,7 @@ class ReparaturChanges {
         this.extrasachen = ""
         this.eingangsdatum = ""
         this.auftragsstatus = ""
+        this.archivid = -1
+        this.editparam = ""
     }
 }

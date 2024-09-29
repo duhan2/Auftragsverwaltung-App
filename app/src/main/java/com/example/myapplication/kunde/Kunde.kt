@@ -35,7 +35,10 @@ data class Kunde (
     var extras: String = "",
 
     @ColumnInfo(name= "Eingansdatum", defaultValue = "")
-    var eingansdatum: String = ""
+    var eingansdatum: String = "",
+
+    @ColumnInfo(name = "ArchivID")
+    var archivid: Int = -1
 
 )
 

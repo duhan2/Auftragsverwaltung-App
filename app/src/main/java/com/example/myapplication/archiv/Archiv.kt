@@ -10,7 +10,7 @@ import com.google.gson.Gson
 @Entity(tableName = "archiv_tabelle")
 data class Archiv(
     @PrimaryKey(autoGenerate = true)
-    var id: Int,
+    var id: Int = 1,
 
     @ColumnInfo(name = "Name")
     var name: String = "leer",
@@ -19,14 +19,14 @@ data class Archiv(
     var telNummer: String = "",
 
     @ColumnInfo(name = "Auftragsliste")
-    var auftragsliste: List<Kunde>
+    var auftragsliste: MutableList<Kunde>
 )
 
 //Gucken ob das ausreichend ist
 class AuftragsConverter {
     @TypeConverter
-    fun listToJson(value: List<Kunde>?): String = Gson().toJson(value)
+    fun listToJson(value: MutableList<Kunde>?): String = Gson().toJson(value)
 
     @TypeConverter
-    fun jsonToList(value: String) = Gson().fromJson(value, Array<Kunde>::class.java).toList()
+    fun jsonToList(value: String) = Gson().fromJson(value, Array<Kunde>::class.java).toMutableList()
 }
