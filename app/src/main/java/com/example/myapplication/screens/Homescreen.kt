@@ -52,9 +52,17 @@ fun Homescreen(
         items(items = kundenliste.value, key = { item: Kunde ->
             item.id
         }) { item: Kunde ->
-            val color = when (item.status) {
-                "abgeschlossen" -> MaterialTheme.colorScheme.surfaceContainerLowest
-                "eingegangen" -> MaterialTheme.colorScheme.surfaceContainerHighest
+            var color = Color.Green
+            var textcolor = Color.Green
+            when (item.status) {
+                "abgeschlossen" -> {
+                    color = MaterialTheme.colorScheme.surfaceContainerLowest
+                    textcolor = MaterialTheme.colorScheme.onSurface
+                }
+                "eingegangen" -> {
+                    color = MaterialTheme.colorScheme.inverseSurface
+                    textcolor = MaterialTheme.colorScheme.inverseOnSurface
+                }
                 //Sollte nie vorkommen
                 else -> Color.Green
             }
@@ -71,7 +79,7 @@ fun Homescreen(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(1f),
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = textcolor
                 )
                 Column(modifier = Modifier.weight(4f)) {
                     Text(
@@ -79,14 +87,14 @@ fun Homescreen(
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         //modifier = Modifier.weight(1f),
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = textcolor
                     )
                     Text(
                         text = item.status,
                         style = MaterialTheme.typography.bodyMedium,
                         //fontWeight = FontWeight.Bold,
                         //modifier = Modifier.weight(1f),
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = textcolor
                     )
                 }
 

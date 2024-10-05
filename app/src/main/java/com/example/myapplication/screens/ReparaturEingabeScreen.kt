@@ -253,7 +253,7 @@ fun ReparaturEingabeScreen(
 
         Button(enabled = buttonenabler, shape = CircleShape, onClick = {
 
-            if ((selectedOptionText == "Neue Katgeorie") || (selectedOptionText == "gelöscht") || (selectedOptionText == "leer")) {
+            if ((selectedOptionText == "Neue Katgeorie") || (selectedOptionText == "gelöscht") || (selectedOptionText == "leer") || (selectedOptionText == "noch leer")) {
                 Toast.makeText(context, "ungültige Kategorie", Toast.LENGTH_SHORT).show()
             } else if ((repname == "") || (reppreis == "")) {
                 Toast.makeText(
