@@ -140,22 +140,12 @@ fun Editscreen(
         var nameinput by remember {
             mutableStateOf(
                 TextFieldValue(
-                    text = "", selection = TextRange(0)
+                    text = stagedReparaturChanges.nameinput, selection = TextRange(stagedReparaturChanges.nameinput.length)
                 )
             )
         }
 
-        //Wenn
-        if (stagedReparaturChanges.nameinput != "") {
-            nameinput = TextFieldValue(
-                text = stagedReparaturChanges.nameinput,
-                selection = TextRange(stagedReparaturChanges.nameinput.length)
-            )
-        }
-        var numberinput by remember { mutableStateOf("") }
-        if (stagedReparaturChanges.numberinput != "") {
-            numberinput = stagedReparaturChanges.numberinput
-        }
+        var numberinput by remember { mutableStateOf(stagedReparaturChanges.numberinput) }
 
         var options by remember {
             mutableStateOf(emptyList<Archiv>())
@@ -166,12 +156,11 @@ fun Editscreen(
         ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = {
             stagedReparaturChanges.archivid = -1
             stagedReparaturChanges.nameinput = ""
-            nameinput = TextFieldValue(
-                text = "", selection = TextRange(0)
-            )
+            nameinput = TextFieldValue()
         }) {
             Row {
-                TextField(modifier = Modifier.menuAnchor(),
+                TextField(
+                    modifier = Modifier.menuAnchor(),
                     value = nameinput,
                     onValueChange = { textinput ->
                         nameinput = textinput
@@ -196,32 +185,34 @@ fun Editscreen(
                         Icon(
                             imageVector = Icons.Default.Search, contentDescription = "search"
                         )
-                    }
+                    }, singleLine = true
 
                 )
             }
-
-            ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                options.forEach {
-                    Row(
-                        modifier = Modifier
-                            .clickable(onClick = {
-                                nameinput = TextFieldValue(
-                                    text = it.name, selection = TextRange(it.name.length)
-                                )
-                                stagedReparaturChanges.nameinput = nameinput.text
-                                stagedReparaturChanges.numberinput = it.telNummer
-                                stagedReparaturChanges.archivid = it.id
-                                localFocusManager.clearFocus()
-                                expanded = false
-                            })
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                    ) {
-                        Text(text = it.name)
+            if (options.isNotEmpty()) {
+                ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                    options.forEach {
+                        Row(
+                            modifier = Modifier
+                                .clickable(onClick = {
+                                    nameinput = TextFieldValue(
+                                        text = it.name, selection = TextRange(it.name.length)
+                                    )
+                                    stagedReparaturChanges.nameinput = nameinput.text
+                                    stagedReparaturChanges.numberinput = it.telNummer
+                                    stagedReparaturChanges.archivid = it.id
+                                    numberinput = it.telNummer
+                                    localFocusManager.clearFocus()
+                                    expanded = false
+                                })
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        ) {
+                            Text(text = it.name)
+                        }
                     }
-                }
 
+                }
             }
         }
 
@@ -544,11 +535,6 @@ fun Editscreen(
             )
         )
 
-        var status = "eingegangen"
-        if (stagedReparaturChanges.auftragsstatus == "abgeschlossen") {
-            status = "abgeschlossen"
-        }
-
         Button(modifier = Modifier.align(Alignment.CenterHorizontally), onClick = {
 
             if (nameinput.text != "") {
@@ -568,7 +554,7 @@ fun Editscreen(
                                             name = nameinput.text,
                                             gesPreis = gesamtpreis,
                                             telNummer = numberinput,
-                                            status = status,
+                                            status = "eingegangen",
                                             reparaturliste = gesamtreps,
                                             extras = notiztext,
                                             eingansdatum = formattedDate,
@@ -592,7 +578,7 @@ fun Editscreen(
                                     name = nameinput.text,
                                     gesPreis = gesamtpreis,
                                     telNummer = numberinput,
-                                    status = status,
+                                    status = "eingegangen",
                                     reparaturliste = gesamtreps,
                                     extras = notiztext,
                                     eingansdatum = formattedDate,
@@ -660,7 +646,7 @@ fun Editscreen(
                                     name = nameinput.text,
                                     gesPreis = gesamtpreis,
                                     telNummer = numberinput,
-                                    status = status,
+                                    status = "eingegangen",
                                     reparaturliste = gesamtreps,
                                     extras = notiztext,
                                     eingansdatum = formattedDate,

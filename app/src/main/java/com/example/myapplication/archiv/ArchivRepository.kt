@@ -1,7 +1,6 @@
 package com.example.myapplication.archiv
 
 class ArchivRepository(private val archivDao: ArchivDao) {
-    @Suppress("RedundantSuspendModifier")
     //@WorkerThread
     suspend fun insert(archiv: Archiv) {
         archivDao.insertArchiv(archiv)

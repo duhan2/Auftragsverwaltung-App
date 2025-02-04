@@ -430,7 +430,7 @@ class MainActivity : ComponentActivity() {
                             composable("archiv") {
                                 ArchivScreen(
                                     navController = navController,
-                                    archivliste = archivliste,
+                                    archivListState = archivliste,
                                     archivChanges = archivChanges
                                 )
                             }

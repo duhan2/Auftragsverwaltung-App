@@ -1,5 +1,7 @@
 package com.example.myapplication.screens
 
+import android.content.Intent
+import android.net.Uri
 import android.telephony.SmsManager
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -18,6 +20,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
@@ -85,7 +88,7 @@ fun AuftragScreen(
                 )
                 Text(
                     text = "${reparaturChanges.kundenid}",
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(2f),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -102,14 +105,14 @@ fun AuftragScreen(
                 )
                 Text(
                     text = reparaturChanges.nameinput,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(2f),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
         item {
-            Row {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = "Nummer: ",
                     modifier = Modifier.weight(2f),
@@ -123,6 +126,39 @@ fun AuftragScreen(
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
+                val ctx = LocalContext.current
+
+                Button(modifier = Modifier.weight(1f), onClick = {
+                    // on below line we are opening the dialer of our
+                    // phone and passing phone number.
+                    // Use format with "tel:" and phoneNumber created is
+                    // stored in u.
+                    val u = Uri.parse("tel:$phoneNumber")
+
+                    // Create the intent and set the data for the
+                    // intent as the phone number.
+                    val i = Intent(Intent.ACTION_DIAL, u)
+                    try {
+
+                        // Launch the Phone app's dialer with a phone
+                        // number to dial a call.
+                        ctx.startActivity(i)
+                    } catch (s: SecurityException) {
+
+                        // show() method display the toast with
+                        // exception message.
+                        Toast.makeText(ctx, "An error occurred", Toast.LENGTH_LONG)
+                            .show()
+                    }
+                }, colors = ButtonColors(Color.Green, Color.White, Color.DarkGray, Color.Gray),
+                    shape = CircleShape
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Call,
+                        contentDescription = "anrufen",
+                        modifier = Modifier.size(40.dp)
+                    )
+                }
             }
         }
         item {
@@ -136,7 +172,7 @@ fun AuftragScreen(
                 )
                 Text(
                     text = reparaturChanges.eingangsdatum,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(2f),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -155,7 +191,7 @@ fun AuftragScreen(
                 )
                 Text(
                     text = status,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(2f),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -352,7 +388,11 @@ fun AuftragScreen(
                     ),
                     border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.outline),
                     onClick = {
-                        if (reparaturChanges.numberinput.startsWith("02151")) {
+                        val check =
+                            ((!reparaturChanges.numberinput.startsWith("01")) && (!reparaturChanges.numberinput.startsWith(
+                                "+49"
+                            )))
+                        if (check) {
                             Toast.makeText(
                                 context,
                                 "Kann keine SMS an Festnetznummer versenden",
@@ -416,9 +456,11 @@ fun AuftragScreen(
 
                 //Divider(thickness = 1.dp, color = Color.DarkGray)
 
-                Spacer(modifier = Modifier
-                    .width(10.dp)
-                    .weight(1f))
+                Spacer(
+                    modifier = Modifier
+                        .width(10.dp)
+                        .weight(1f)
+                )
 
                 // on below line adding a button to send SMS
                 OutlinedButton(
@@ -433,15 +475,55 @@ fun AuftragScreen(
                     onClick = {
                         //Hier kann man auch abfragen ob keine Nummer vorhanden ist, aber bis jetzt ist eine Nummer Pflicht
                         //Wenn Nummer mit Festnetznummer anfängt
-                        if (reparaturChanges.numberinput.startsWith("02151")) {
-                            reparaturChanges.auftragsstatus = "abgeschlossen"
-                            status = "abgeschlossen"
-                            kundeViewModel.update(reparaturChanges.createKundenobj())
-                            Toast.makeText(
-                                context,
-                                "Kann keine SMS an Festnetznummer versenden",
-                                Toast.LENGTH_LONG
-                            ).show()
+                        val check =
+                            ((!reparaturChanges.numberinput.startsWith("01")) && (!reparaturChanges.numberinput.startsWith(
+                                "+49"
+                            )))
+                        if (check) {
+                            if (reparaturChanges.auftragsstatus == "eingegangen") {
+                                reparaturChanges.auftragsstatus = "abgeschlossen"
+                                status = "abgeschlossen"
+                                kundeViewModel.update(reparaturChanges.createKundenobj())
+                                Toast.makeText(
+                                    context,
+                                    "Kann keine SMS an Festnetznummer versenden",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                                //Wenn Archiveintrag besteht
+                                if (reparaturChanges.archivid != -1) {
+                                    val temp =
+                                        archivList.value.find { it.id == reparaturChanges.archivid }
+                                    if (temp != null) {
+                                        //setz den neuen Auftrag in die Liste und aktualisiere das Archiv
+                                        temp.auftragsliste.add(reparaturChanges.createKundenobj())
+                                        archivViewModel.update(temp)
+                                    }
+
+                                }
+                                //Wenn der Eintrag noch nicht besteht
+                                else {
+                                    //Erschaffe nächstgroße ID
+                                    val temp = archivList.value.maxByOrNull { it.id }
+                                    var archivid = 1
+                                    if (temp != null) {
+                                        archivid = temp.id + 1
+                                    }
+                                    //Erschaffe folgenden Archiveintrag mit diesem Auftrag zur Liste hinzugefügt
+                                    archivViewModel.insert(
+                                        Archiv(
+                                            archivid,
+                                            reparaturChanges.nameinput,
+                                            reparaturChanges.numberinput,
+                                            mutableListOf(reparaturChanges.createKundenobj())
+                                        )
+                                    )
+                                }
+                            } else {
+                                Toast.makeText(
+                                    context, "Auftrag bereits abgeschlossen", Toast.LENGTH_LONG
+                                ).show()
+                            }
+
                         } else {
                             if (reparaturChanges.auftragsstatus == "eingegangen") {
                                 message =
@@ -456,6 +538,7 @@ fun AuftragScreen(
                                 ).show()
                             }
                         }
+
                     }) {
                     // on below line creating a text for our button.
                     Text(
@@ -559,6 +642,7 @@ fun AuftragScreen(
                         modifier = Modifier.size(60.dp)
                     )
                 }
+
             }
             when {
                 openAlertDialog3 -> AlertDialog(

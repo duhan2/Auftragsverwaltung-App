@@ -19,6 +19,6 @@ interface ArchivDao {
     @Update(onConflict = OnConflictStrategy.ABORT)
     suspend fun updateArchiv(archiv: Archiv): Int
 
-    @Query("SELECT * FROM archiv_tabelle")
+    @Query("SELECT * FROM archiv_tabelle ORDER BY name")
     fun getAllArchiv() : Flow<List<Archiv>>
 }
