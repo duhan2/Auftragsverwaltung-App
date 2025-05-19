@@ -1,21 +1,25 @@
 package com.example.myapplication.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuAnchorType
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -23,18 +27,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.myapplication.archiv.Archiv
 import com.example.myapplication.archiv.ArchivChanges
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ArchivScreen(
     navController: NavController,
@@ -43,96 +42,81 @@ fun ArchivScreen(
 ) {
     // State for the search input
     var searchInput by remember {
-        mutableStateOf(TextFieldValue())
+        mutableStateOf("")
     }
-
-    // State for the filtered options
-    var filteredOptions by remember {
-        mutableStateOf(emptyList<Archiv>())
-    }
-
     // State for the dropdown menu's expanded state
-    var isDropdownExpanded by remember { mutableStateOf(false) }
 
-    val focusManager: FocusManager = LocalFocusManager.current
-    Column(Modifier.fillMaxWidth()) {
-        ExposedDropdownMenuBox(
-            modifier = Modifier.fillMaxWidth(),
-            expanded = isDropdownExpanded,
-            onExpandedChange = { isDropdownExpanded = it }
+    val focusManager = LocalFocusManager.current
+
+    val filteredOptions = remember(searchInput) {
+        if (searchInput.isBlank()) emptyList()
+        else archivListState.value.filter { it.name.contains(searchInput, ignoreCase = true) }
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
         ) {
-            TextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .menuAnchor(
-                        type = MenuAnchorType.PrimaryEditable,
-                        enabled = isDropdownExpanded
-                    ),
+            OutlinedTextField(
                 value = searchInput,
-                onValueChange = { newSearchInput ->
-                    searchInput = newSearchInput
-                    isDropdownExpanded = newSearchInput.text.isNotBlank()
-                    filteredOptions = filterArchivList(archivListState.value, newSearchInput.text)
-                },
-                label = { Text("Name") },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Done
-                ),
-                trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = isDropdownExpanded)
+                onValueChange = {
+                    searchInput = it
                 },
                 singleLine = true,
-                colors = ExposedDropdownMenuDefaults.textFieldColors()
-            )
-            if (filteredOptions.isNotEmpty()) {
-                ExposedDropdownMenu(
-                    modifier = Modifier.exposedDropdownSize(matchTextFieldWidth = true),
-                    expanded = isDropdownExpanded,
-                    onDismissRequest = { isDropdownExpanded = false }
-                ) {
-                    filteredOptions.forEach { archiv ->
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text = archiv.name,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                            },
-                            leadingIcon = {
-                                Icon(
-                                    imageVector = Icons.Default.Person,
-                                    contentDescription = "Person",
-                                    modifier = Modifier.size(24.dp)
-                                )
-                            },
-                            onClick = {
-                                archivChanges.setfromobj(archiv)
-                                navController.navigate("kundenansicht")
-                                isDropdownExpanded = false
-                                focusManager.clearFocus()
-                            },
-                            contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
-                            modifier = Modifier
-                                .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-                        )
+                trailingIcon = {
+                    if (searchInput.isNotEmpty()) {
+                        IconButton(onClick = {
+                            searchInput = ""
+                            focusManager.clearFocus()
+                        }) {
+                            Icon(Icons.Default.Close, contentDescription = "Löschen")
+                        }
                     }
+                },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(200.dp)) // Simuliertes nachfolgendes UI
+            Text("Darunterliegendes UI", style = MaterialTheme.typography.bodyLarge)
+        }
+        if (filteredOptions.isNotEmpty()) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .offset(y = 72.dp)
+                    .background(
+                        MaterialTheme.colorScheme.surfaceContainerHigh,
+                        MaterialTheme.shapes.medium
+                    )
+                    .border(
+                        1.dp,
+                        MaterialTheme.colorScheme.outline,
+                        MaterialTheme.shapes.medium
+                    )
+            ) {
+                items(filteredOptions) { archiv ->
+                    Text(
+                        text = archiv.name,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                archivChanges.setfromobj(archiv)
+                                searchInput = archiv.name
+                                focusManager.clearFocus()
+                                navController.navigate("kundenansicht")
+                            }
+                            .padding(12.dp),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
 
                 }
             }
-        }
-    }
-}
 
-// Helper function to filter the list
-fun filterArchivList(archivList: List<Archiv>, searchText: String): List<Archiv> {
-    return if (searchText.isBlank()) {
-        emptyList()
-    } else {
-        archivList.filter {
-            it.name.contains(searchText, ignoreCase = true)
+
         }
     }
 }

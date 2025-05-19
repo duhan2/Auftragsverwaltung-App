@@ -43,12 +43,10 @@ import com.example.myapplication.reparatur.ReparaturChanges
 @Composable
 fun AuswahlScreen(
     navController: NavController,
-    //kategorieViewModel: KategorieViewModel,
+
     stagedReparaturChanges: ReparaturChanges,
     kategorieliste: State<List<Kategorie>>
 ) {
-
-//    val list by kategorieViewModel.getallKategorien().observeAsState(listOf())
 
     val reparaturen = mutableListOf<Reparatur>()
 
@@ -69,7 +67,6 @@ fun AuswahlScreen(
     Box {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            //modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             kategorieliste.value.forEach { kategorie ->
@@ -213,7 +210,9 @@ fun AuswahlScreen(
         }
 
         FloatingActionButton(
-            modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp),
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp),
             containerColor = MaterialTheme.colorScheme.primaryContainer,
             contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
 
