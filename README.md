@@ -18,7 +18,6 @@ Eine moderne Android-App zur Verwaltung von Reparaturaufträgen, entwickelt mit 
 
 ## 🧪 Screenshots
 
-> *(Optional – Hier kannst du Screenshots der App einfügen)*
 
 ## ⚙️ Tech Stack
 
