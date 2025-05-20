@@ -73,6 +73,3 @@ Die App besteht voraussichtlich aus folgenden Hauptansichten:
 
 *   Exportfunktionen für Auftragsdaten (z.B. als PDF oder CSV).
 *   Cloud-Synchronisation der Daten.
-
-
-**Hinweis:** Diese README wurde basierend auf den zur Verfügung gestellten Code-Snippets und deren Analyse erstellt. Einige Details, insbesondere zur genauen Implementierung der Datenpersistenz oder spezifischen Business-Logiken, könnten bei vollständiger Einsicht in das Projekt abweichen oder detaillierter sein.

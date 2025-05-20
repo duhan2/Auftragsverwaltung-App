@@ -16,13 +16,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -31,7 +30,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.input.ImeAction
@@ -45,7 +43,7 @@ import com.example.myapplication.kategorie.KategorieViewModel
 import com.example.myapplication.reparatur.Reparatur
 
 @OptIn(
-    ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class,
+    ExperimentalMaterial3Api::class,
     ExperimentalFoundationApi::class
 )
 @Composable
@@ -313,18 +311,18 @@ fun AlertDialog(
 ) {
     AlertDialog(
         title = {
-            Text(text = dialogTitle, color = Color.Black, fontWeight = Bold, fontSize = 26.sp)
+            Text(text = dialogTitle, fontWeight = Bold, fontSize = 26.sp)
         },
-        text = { Text(text = dialogText, color = Color.Black) },
+        text = { Text(text = dialogText) },
         onDismissRequest = { onDismissRequest() },
         confirmButton = {
             TextButton(onClick = { onConfirmation() }) {
-                Text(text = "Bestätigen", color = Color.Black)
+                Text(text = "Bestätigen")
             }
         },
         dismissButton = {
             TextButton(onClick = { onDismissRequest() }) {
-                Text(text = "Abbrechen", color = Color.Black)
+                Text(text = "Abbrechen")
             }
         }
     )

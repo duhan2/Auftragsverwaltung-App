@@ -147,7 +147,8 @@ fun RowScope.Kunde_LoeschButton(kunde: Kunde, kundeViewModel: KundeViewModel) {
                         openAlertDialog.value = false
                     },
                     dialogText = "Diese Aktion kann nicht rückgängig gemacht werden.",
-                    dialogTitle = "Kunde löschen ?"
+                    dialogTitle = "Kunde löschen ?",
+
                 )
             }
         }
