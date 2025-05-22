@@ -17,6 +17,11 @@ Eine moderne Android-App zur Verwaltung von Reparaturaufträgen, entwickelt mit 
 - Speicherung von Aufträgen
 
 ## 🧪 Screenshots
+![Auftragsscreen](https://github.com/user-attachments/assets/8a0e3105-639d-4684-a5c9-e34b2ffdf240)
+![Auftrag Eingabe](https://github.com/user-attachments/assets/484d62e9-137f-4bac-af3a-5ef55352529e)
+![Abschließen des Auftrags per SMS](https://github.com/user-attachments/assets/88b67c55-cc63-4c4f-8ca5-481b5ec73eb4)
+![Archiv mit allen Kunden](https://github.com/user-attachments/assets/c5b75d1f-d5aa-4461-8f35-8c2c780ff97e)
+![Auflistung aller eingegagnenen Reparaturen](https://github.com/user-attachments/assets/c6a1d38e-2d44-4b24-9a1b-b13f4eb9d738)
 
 
 ## ⚙️ Tech Stack
