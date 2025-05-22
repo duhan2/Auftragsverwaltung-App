@@ -52,3 +52,10 @@ Archiv mit Suchleiste um alle vergangenen Kunden zu finden
 ├── build.gradle.kts          # Projekt-Build-Konfiguration
 ├── settings.gradle.kts       # Gradle-Settings
 └── README.md                 # Diese Datei
+
+```
+### Geplante Features
+- Responsives Design
+- Option zur Modifikation der SMS-Benachrichtigungen
+- UI Anpassungen
+- App-Namen und Banner anpassen :)
