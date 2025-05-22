@@ -54,7 +54,7 @@ Archiv mit Suchleiste um alle vergangenen Kunden zu finden
 └── README.md                 # Diese Datei
 
 ```
-### Geplante Features
+## Geplante Features
 - Responsives Design
 - Option zur Modifikation der SMS-Benachrichtigungen
 - UI Anpassungen
