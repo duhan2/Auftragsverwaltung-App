@@ -56,6 +56,7 @@ Archiv mit Suchleiste um alle vergangenen Kunden zu finden
 ```
 ## Geplante Features
 - Responsives Design
+- Exportierbare Rechnungen in CSV oder PDF Format
 - Option zur Modifikation der SMS-Benachrichtigungen
 - UI Anpassungen
 - App-Namen und Banner anpassen :)
